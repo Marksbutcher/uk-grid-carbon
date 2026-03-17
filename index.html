@@ -345,7 +345,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 
 <!-- ══════════════════════════ NOW ══════════════════════════ -->
 <div id="p-now" class="panel active">
-  <div class="sh"><h2>Current readings</h2><p>Most recent half-hour · 19 March 2026 · 09:30 UTC</p></div>
+  <div class="sh"><h2>Current readings</h2><p>Most recent half-hour · <span id="now-sh-ts">loading...</span></p></div>
   <div class="g4" id="now-stats"></div>
   <div class="tbl-card">
     <div style="padding:12px 14px 0">
@@ -1628,7 +1628,10 @@ function fetchLiveData(){
       var mm2 = String(d.getUTCMinutes()).padStart(2,'0');
       var dd = String(d.getUTCDate()).padStart(2,'0');
       var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
-      document.getElementById('data-ts').textContent = dd+' '+mo+' '+hh+':'+mm2+' UTC';
+      var tsStr = dd+' '+mo+' '+hh+':'+mm2+' UTC';
+      document.getElementById('data-ts').textContent = tsStr;
+      var shTs = document.getElementById('now-sh-ts');
+      if(shTs) shTs.textContent = tsStr;
       setLiveBadge('ok','Live');
 
       // Rebuild active panel with fresh data — but not forecast/heatmap/trend
@@ -1993,7 +1996,35 @@ go('now');
 // Fetch live data once DOM and all resources are loaded, then auto-refresh every 30 minutes
 window.addEventListener('load', function(){
   fetchLiveData();
-  setInterval(fetchLiveData, 30 * 60 * 1000);
+
+  // Align refresh to NESO half-hour publishing schedule
+  // NESO publishes at :00 and :30 UTC — schedule next fetch 2 minutes after each slot
+  function scheduleNextFetch(){
+    var now = new Date();
+    var ms = now.getTime();
+    var slotMs = 30 * 60 * 1000;
+    var nextSlot = Math.ceil((ms + 2 * 60 * 1000) / slotMs) * slotMs; // next :00 or :30 + 2 min buffer
+    var delay = nextSlot - ms;
+    setTimeout(function(){ fetchLiveData(); scheduleNextFetch(); }, delay);
+  }
+  scheduleNextFetch();
+
+  // Countdown to next update in header
+  setInterval(function(){
+    var el = document.getElementById('data-ts');
+    if(!el || !LIVE.ts) return;
+    var now = new Date();
+    var slotMs = 30 * 60 * 1000;
+    var nextSlot = Math.ceil((now.getTime() + 2 * 60 * 1000) / slotMs) * slotMs;
+    var secsLeft = Math.round((nextSlot - now.getTime()) / 1000);
+    var mm = Math.floor(secsLeft / 60), ss = secsLeft % 60;
+    var d = new Date(LIVE.ts);
+    var hh = String(d.getUTCHours()).padStart(2,'0');
+    var min = String(d.getUTCMinutes()).padStart(2,'0');
+    var dd = String(d.getUTCDate()).padStart(2,'0');
+    var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
+    el.textContent = dd+' '+mo+' '+hh+':'+min+' UTC · next '+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+  }, 1000);
 });
 </script>
 </body>
