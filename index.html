@@ -1306,7 +1306,7 @@ function buildMix(){
       return '<div class="mrb-seg" style="flex:'+pct+';background:'+FC[f]+'" title="'+FL[f]+': '+pct+'%"></div>';
     }).join('');
     var col = d.clean > 60 ? 'var(--low)' : d.clean > 35 ? 'var(--mid)' : 'var(--high)';
-    return '<div class="mrb-row" onclick="openRegion(\''+d.r.replace(/'/g,"\\'")+'\')">' +
+    return '<div class="mrb-row" onclick="openRegion(this.dataset.r)" data-r="'+d.r+'">' +
       '<div class="mrb-label">'+d.r+'</div>' +
       '<div class="mrb-bar-wrap">'+segs+'</div>' +
       '<div class="mrb-val" style="color:'+col+'">'+d.clean+'%</div>' +
@@ -1680,8 +1680,8 @@ function buildSchedScores(){
   el.innerHTML = scores.map(function(s){
     var col = s.score >= 70 ? 'var(--low)' : s.score >= 40 ? 'var(--mid)' : 'var(--high)';
     var label = s.score >= 80 ? 'Excellent' : s.score >= 60 ? 'Good' : s.score >= 40 ? 'Average' : s.score >= 20 ? 'High' : 'Very high';
-    var safeR = s.r.replace(/'/g, '&#39;');
-    return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--rule);cursor:pointer" onclick="openRegion(\''+safeR+'\')">' +
+    var safeR = s.r;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--rule);cursor:pointer" onclick="openRegion(this.dataset.r)" data-r="'+safeR+'">' +
       '<div style="width:160px;flex-shrink:0;font-size:11px;color:var(--ink2)">'+s.r+'</div>' +
       '<div style="flex:1;height:6px;background:var(--paper);border-radius:3px;overflow:hidden">' +
         '<div style="height:100%;width:'+s.score+'%;background:'+col+';border-radius:3px;transition:width .5s ease"></div>' +
