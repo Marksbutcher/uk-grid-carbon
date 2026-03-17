@@ -720,6 +720,17 @@ function ci(v, a=1) {
 // CHART REGISTRY
 // ══════════════════════════════════════════════════════════
 const CH = {};
+// ── Chart.js global tooltip defaults: dark bg, readable text ──
+Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e1e';
+Chart.defaults.plugins.tooltip.titleColor = '#ffffff';
+Chart.defaults.plugins.tooltip.bodyColor = '#d4d4d4';
+Chart.defaults.plugins.tooltip.borderWidth = 0;
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 4;
+Chart.defaults.plugins.tooltip.titleFont = {family:'Barlow Condensed,Barlow,sans-serif', size:12, weight:'600'};
+Chart.defaults.plugins.tooltip.bodyFont = {family:'Barlow,sans-serif', size:12};
+Chart.defaults.plugins.tooltip.boxWidth = 10;
+Chart.defaults.plugins.tooltip.boxHeight = 10;
 function kc(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
 
 // ══════════════════════════════════════════════════════════
@@ -884,7 +895,7 @@ function buildRegion(){
     }]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b',callbacks:{label:function(c){return Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
+      plugins:{legend:{display:false}, tooltip:{displayColors:false,callbacks:{label:function(c){return Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
       scales:{x:{ticks:{color:'#6b6b6b',font:{size:9},maxRotation:0},grid:{color:'#f0ede6'}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
     }
   });
@@ -908,7 +919,7 @@ function buildRegion(){
       data:hAvg, backgroundColor:hAvg.map(function(v){return ci(v,.75);}), borderColor:hAvg.map(function(v){return ci(v,1);}), borderWidth:1, borderRadius:2
     }]},
     options:{responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return 'avg '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
+      plugins:{legend:{display:false}, tooltip:{displayColors:false,callbacks:{label:function(c){return 'avg '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
       scales:{x:{ticks:{color:'#6b6b6b',font:{size:8},maxRotation:40},grid:{display:false}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'avg gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
     }
   });
@@ -927,7 +938,7 @@ function buildRegion(){
       {label:'GB average', data:gbAvgs, borderColor:'#94a3b8', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:.35, fill:false}
     ]},
     options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
-      plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:12,padding:10}}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return c.dataset.label+': '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
+      plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:12,padding:10}}, tooltip:{usePointStyle:true,callbacks:{label:function(c){return c.dataset.label+': '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
       scales:{x:{ticks:{color:'#6b6b6b',font:{size:9},maxRotation:40,maxTicksLimit:20},grid:{color:'#f0ede6'}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
     }
   });
@@ -946,7 +957,7 @@ function buildRegion(){
   CH['rgn-mix'] = new Chart(ctx4, {
     type:'line', data:{labels:months, datasets:mixDs2},
     options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
-      plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:10,padding:8}}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y+'%';}}}},
+      plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:10,padding:8}}, tooltip:{usePointStyle:true,callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y+'%';}}}},
       scales:{x:{stacked:true,ticks:{color:'#6b6b6b',font:{size:9},maxRotation:40,maxTicksLimit:20},grid:{display:false}}, y:{stacked:true,max:100,ticks:{color:'#6b6b6b',font:{size:9},callback:function(v){return v+'%';}},grid:{color:'#f0ede6'}}}
     }
   });
@@ -1072,8 +1083,7 @@ function buildForecast(){
       plugins:{
         legend:{display:false},
         tooltip:{
-          backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,
-          titleColor:'#1a1a1a',bodyColor:'#6b6b6b',
+          displayColors:false,
           callbacks:{label:c=>`${Math.round(c.parsed.y)} gCO₂/kWh`}
         }
       },
@@ -1126,7 +1136,7 @@ function buildForecast(){
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:9,family:'Barlow'},boxWidth:10,padding:8}},
-        tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b'}
+        tooltip:{usePointStyle:true}
       },
       scales:{
         x:{stacked:true,ticks:{color:'#6b6b6b',font:{size:9,family:'Barlow'},maxRotation:0},grid:{display:false}},
@@ -1302,9 +1312,8 @@ function renderTrend(){
         responsive:true,maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
         plugins:{
-          legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10,family:'Barlow'},boxWidth:12,padding:10}},
-          tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b',
-            callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.parsed.y)} gCO₂/kWh`}}
+          legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:11,family:'Barlow'},boxWidth:12,padding:10}},
+          tooltip:{usePointStyle:true,callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.parsed.y)} gCO₂/kWh`}}
         },
         scales:{
           x:{ticks:{color:'#6b6b6b',font:{size:9,family:'Barlow'},maxRotation:40,maxTicksLimit:24},grid:{color:'#f0ede6'}},
@@ -1328,9 +1337,8 @@ function renderTrend(){
         responsive:true,maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
         plugins:{
-          legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10,family:'Barlow'},boxWidth:10,padding:8}},
-          tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b',
-            callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y}%`}}
+          legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:11,family:'Barlow'},boxWidth:10,padding:8}},
+          tooltip:{usePointStyle:true,callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y}%`}}
         },
         scales:{
           x:{stacked:true,ticks:{color:'#6b6b6b',font:{size:9,family:'Barlow'},maxRotation:40,maxTicksLimit:24},grid:{color:'#f0ede6'}},
@@ -1413,8 +1421,7 @@ function buildMix(){
       interaction:{ mode:'index', intersect:false },
       plugins:{
         legend:{ position:'bottom', labels:{ color:'#6b6b6b', font:{ size:10, family:'Barlow' }, boxWidth:10, padding:8 }},
-        tooltip:{ backgroundColor:'#fff', borderColor:'#e0ddd6', borderWidth:1, titleColor:'#1a1a1a', bodyColor:'#6b6b6b',
-          callbacks:{ label:function(c){ return c.dataset.label+': '+c.parsed.y+'%'; }}}
+        tooltip:{ usePointStyle:true, callbacks:{ label:function(c){ return c.dataset.label+': '+c.parsed.y+'%'; }}}
       },
       scales:{
         x:{ stacked:true, ticks:{ color:'#6b6b6b', font:{ size:9, family:'Barlow' }, maxRotation:40, maxTicksLimit:24 }, grid:{ color:'#f0ede6' }},
@@ -1473,7 +1480,7 @@ function buildMix(){
       responsive:true, maintainAspectRatio:true,
       plugins:{
         legend:{ display:false },
-        tooltip:{ backgroundColor:'#fff', borderColor:'#e0ddd6', borderWidth:1, titleColor:'#1a1a1a', bodyColor:'#6b6b6b',
+        tooltip:{ displayColors:false,
           callbacks:{
             title:function(items){ return items[0].raw.m; },
             label:function(c){ return 'Wind: '+c.raw.x+'% · Intensity: '+c.raw.y+' gCO\u2082/kWh'; }
@@ -1507,7 +1514,7 @@ function buildMix(){
       responsive:true, maintainAspectRatio:true,
       plugins:{
         legend:{ display:false },
-        tooltip:{ backgroundColor:'#fff', borderColor:'#e0ddd6', borderWidth:1, titleColor:'#1a1a1a', bodyColor:'#6b6b6b',
+        tooltip:{ displayColors:false,
           callbacks:{ label:function(c){ return 'Gas: '+c.parsed.y+'% of generation'; }}}
       },
       scales:{
