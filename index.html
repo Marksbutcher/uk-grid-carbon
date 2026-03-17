@@ -809,8 +809,8 @@ function buildRegion(){
 
   // 48h forecast chart — use live data if available, otherwise fetch
   kc('rgn-fc');
-  var fVals = LIVE_FORECAST[r] ? LIVE_FORECAST[r].map(function(p){return p.intensity||0;}) : FORECAST[r];
-  if(!LIVE_FORECAST[r]){ fetchRegionForecast(r, function(pts){ if(pts && document.getElementById('p-region').classList.contains('active') && activeRegion===r) buildRegion(); }); }
+  var fVals = (LIVE_FORECAST[r] && LIVE_FORECAST[r].length > 0) ? LIVE_FORECAST[r].map(function(p){return p.intensity||0;}) : FORECAST[r];
+  if(!LIVE_FORECAST[r] || LIVE_FORECAST[r].length === 0){ fetchRegionForecast(r, function(pts){ if(pts && document.getElementById('p-region').classList.contains('active') && activeRegion===r) buildRegion(); }); }
   var startH = 9;
   var fcLabels = Array.from({length:48}, function(_,i){
     var h=(startH+i)%24;
@@ -970,10 +970,10 @@ function buildForecast(){
            :(startH+i)%6===0?`${String(h).padStart(2,'0')}:00`:'';
   });
 
-  const vals = livePts ? livePts.map(function(p){return p.intensity||0;}) : FORECAST[r];
+  const vals = (livePts && livePts.length > 0) ? livePts.map(function(p){return p.intensity||0;}) : FORECAST[r];
   // Fetch live forecast in background if not loaded
   // When it arrives, update charts in place rather than destroy+recreate
-  if(!livePts){ fetchRegionForecast(r, function(pts){
+  if(!livePts || livePts.length === 0){ fetchRegionForecast(r, function(pts){
     if(!pts) return;
     if(!document.getElementById('p-forecast').classList.contains('active')) return;
     // Update existing chart data in place — no flash
@@ -1618,8 +1618,8 @@ function fetchRegionForecast(regionName, callback){
           pts.push({ from:slot.from, intensity:slot.intensity.forecast, mix:m });
         });
       }
-      LIVE_FORECAST[regionName] = pts;
-      callback(pts);
+      if(pts.length > 0) LIVE_FORECAST[regionName] = pts;
+      callback(pts.length > 0 ? pts : null);
     })
     .catch(function(){ callback(null); });
 }
