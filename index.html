@@ -1497,6 +1497,7 @@ Object.keys(REGION_ID).forEach(function(id){ REGION_ID_REV[REGION_ID[id]] = pars
 // LIVE DATA — NESO Carbon Intensity API
 // ══════════════════════════════════════════════════════════
 var LIVE = { loaded:false, ts:null, regions:{}, mix:{}, gbMix:{}, gbIntensity:null };
+var LIVE_FORECAST = {};
 var CORS_PROXY = 'https://carbon-proxy.mark-3f3.workers.dev/?url=';
 var API_BASE = 'https://api.carbonintensity.org.uk';
 
