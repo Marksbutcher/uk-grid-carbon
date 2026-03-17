@@ -1560,7 +1560,9 @@ function fetchLiveData(){
       }
       // Always refresh now table if visible
       if(document.getElementById('now-tbody')) renderNowTable();
-      updateCalc();
+      // Only call updateCalc if the calculator has been initialised
+      if(document.getElementById('calc-region') && document.getElementById('calc-region').options.length > 0) updateCalc();
+      if(document.getElementById('sched-scores')) buildSchedScores();
     })
     .catch(function(err){
       console.warn('Live data fetch failed:', err);
@@ -1613,14 +1615,14 @@ function updateCalc(){
   var when = document.getElementById('calc-when')&&document.getElementById('calc-when').value || 'now';
 
   var nowIntensity = NOW[region] || 200;
-  var fc = LIVE_FORECAST[region] || FORECAST[region] ? null : null;
+  var liveFc = (typeof LIVE_FORECAST !== 'undefined') ? LIVE_FORECAST : {};
 
   // Get best/worst from forecast
-  var fVals = LIVE_FORECAST[region] ? LIVE_FORECAST[region].map(function(p){ return p.intensity||0; }) : FORECAST[region];
+  var fVals = liveFc[region] ? liveFc[region].map(function(p){ return p.intensity||0; }) : FORECAST[region];
   var bestI = fVals ? Math.min.apply(null, fVals) : nowIntensity * 0.6;
   var worstI = fVals ? Math.max.apply(null, fVals) : nowIntensity * 1.3;
-  var bestSlot = fVals ? LIVE_FORECAST[region] ? LIVE_FORECAST[region][fVals.indexOf(bestI)] : null : null;
-  var worstSlot = fVals ? LIVE_FORECAST[region] ? LIVE_FORECAST[region][fVals.indexOf(worstI)] : null : null;
+  var bestSlot = fVals ? (liveFc[region] ? liveFc[region][fVals.indexOf(bestI)] : null) : null;
+  var worstSlot = fVals ? (liveFc[region] ? liveFc[region][fVals.indexOf(worstI)] : null) : null;
 
   var useIntensity = when==='now' ? nowIntensity : when==='best' ? bestI : worstI;
   var kgCO2 = (kwh * useIntensity / 1000);
