@@ -155,6 +155,8 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .pill:hover{color:var(--ink);border-color:var(--rule2)}
 .pill.on{color:var(--acc);border-color:var(--acc);background:#eef2ff}
 .chart-wrap{position:relative;background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
+#trend-wrap{height:300px}
+#trend-wrap canvas{height:100%!important}
 .chart-toggle{display:flex;gap:0;border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;margin-bottom:12px;width:fit-content}
 .ct-btn{padding:5px 14px;font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--white);border:none;cursor:pointer;color:var(--ink3);transition:all .12s}
 .ct-btn.active{background:var(--acc);color:#fff}
@@ -444,7 +446,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
     </div>
   </div>
   <div class="chart-wrap" id="trend-wrap">
-    <canvas id="trend-chart" height="340"></canvas>
+    <canvas id="trend-chart" height="220"></canvas>
   </div>
   <div class="g3" style="margin-top:2px">
     <div style="background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px">
@@ -806,7 +808,7 @@ function buildRegion(){
   // 48h forecast chart — use live data if available, otherwise fetch
   kc('rgn-fc');
   var fVals = LIVE_FORECAST[r] ? LIVE_FORECAST[r].map(function(p){return p.intensity||0;}) : FORECAST[r];
-  if(!LIVE_FORECAST[r]){ fetchRegionForecast(r, function(pts){ if(pts) buildRegion(); }); }
+  if(!LIVE_FORECAST[r]){ fetchRegionForecast(r, function(pts){ if(pts && document.getElementById('p-region').classList.contains('active') && activeRegion===r) buildRegion(); }); }
   var startH = 9;
   var fcLabels = Array.from({length:48}, function(_,i){
     var h=(startH+i)%24;
@@ -967,8 +969,8 @@ function buildForecast(){
   });
 
   const vals = livePts ? livePts.map(function(p){return p.intensity||0;}) : FORECAST[r];
-  // Fetch live forecast in background if not loaded
-  if(!livePts){ fetchRegionForecast(r, function(pts){ if(pts){ buildForecast(); } }); }
+  // Fetch live forecast in background if not loaded — only rebuild if panel still active
+  if(!livePts){ fetchRegionForecast(r, function(pts){ if(pts && document.getElementById('p-forecast').classList.contains('active')){ buildForecast(); } }); }
   const bestIdx=vals.indexOf(Math.min(...vals));
   const worstIdx=vals.indexOf(Math.max(...vals));
 
@@ -1218,7 +1220,7 @@ function renderTrend(){
     tChart=new Chart(ctx,{
       type:'line',data:{labels:months,datasets},
       options:{
-        responsive:true,maintainAspectRatio:true,
+        responsive:true,maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
         plugins:{
           legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10,family:'Barlow'},boxWidth:12,padding:10}},
@@ -1244,7 +1246,7 @@ function renderTrend(){
     tChart=new Chart(ctx,{
       type:'line',data:{labels:months,datasets},
       options:{
-        responsive:true,maintainAspectRatio:true,
+        responsive:true,maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
         plugins:{
           legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10,family:'Barlow'},boxWidth:10,padding:8}},
@@ -1550,7 +1552,8 @@ function fetchLiveData(){
       document.getElementById('data-ts').textContent = dd+' '+mo+' '+hh+':'+mm2+' UTC';
       setLiveBadge('ok','Live');
 
-      // Rebuild active panel with fresh data
+      // Rebuild active panel with fresh data — but not forecast/heatmap/trend
+      // which manage their own chart lifecycle and would flash on rebuild
       var activePanel = document.querySelector('.panel.active');
       if(activePanel){
         var panelId = activePanel.id.replace('p-','');
