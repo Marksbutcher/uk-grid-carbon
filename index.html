@@ -250,6 +250,38 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .wind-scatter { position:relative; }
 @media(max-width:900px){ .insight-strip{grid-template-columns:repeat(4,1fr)} .analysis-grid{grid-template-columns:1fr} }
 @media(max-width:480px){ .insight-strip{grid-template-columns:1fr 1fr} .mrb-label{width:110px} }
+
+/* ── BEST WINDOW CHART ── */
+.bw-chart-wrap{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
+.bw-chart-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.bw-chart-region{display:flex;align-items:center;gap:8px}
+.bw-chart-region label{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.bw-reco{background:var(--paper);border-radius:var(--r);padding:10px 14px;margin-top:10px;font-size:13px;color:var(--ink2);line-height:1.6}
+.bw-reco strong{color:var(--ink);font-weight:600}
+.bw-reco .bw-go{color:var(--low);font-weight:600}
+.bw-reco .bw-wait{color:var(--mid);font-weight:600}
+.bw-bars{display:flex;gap:3px;align-items:flex-end;height:80px;margin-top:4px}
+.bw-bar-col{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;cursor:default;position:relative}
+.bw-bar-col:hover .bw-bar-tip{display:block}
+.bw-bar{border-radius:2px 2px 0 0;width:100%;transition:opacity .2s}
+.bw-bar.best{box-shadow:0 0 0 2px var(--low)}
+.bw-bar-lbl{font-size:8px;color:var(--ink3);margin-top:3px;white-space:nowrap;overflow:hidden;font-family:var(--cond)}
+.bw-bar-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10px;padding:4px 8px;border-radius:3px;white-space:nowrap;z-index:30;pointer-events:none}
+.bw-bar-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--ink)}
+
+/* ── COMPARISON CALCULATOR ── */
+.comp-calc{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
+.comp-inputs{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.comp-table{width:100%;border-collapse:collapse;font-size:12px}
+.comp-table th{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);background:var(--paper)}
+.comp-table th:not(:first-child){text-align:right}
+.comp-table td{padding:8px 10px;border-bottom:1px solid var(--rule);color:var(--ink2)}
+.comp-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr.best-row td{background:#f0fdf4}
+.comp-table .cv{font-family:var(--cond);font-size:16px;font-weight:700}
+.comp-saving{font-size:11px;color:var(--low);font-weight:500}
+.comp-reco{margin-top:12px;padding:10px 14px;background:var(--paper);border-radius:var(--r);font-size:13px;color:var(--ink2);line-height:1.6}
 /* ── REGION DETAIL ── */
 .rgn-hd{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .rgn-hd-name{font-family:var(--cond);font-size:28px;font-weight:700;color:var(--ink)}
@@ -349,29 +381,52 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
       </div>
     </div>
   </div>
-  <!-- Workload calculator -->
-  <div class="calc-wrap">
-    <div class="card-title" style="margin-bottom:12px">Carbon cost calculator <span class="card-sub">· estimate CO₂ for a workload based on live intensity</span></div>
-    <div class="calc-inputs">
+
+  <!-- 24-hour best-window chart -->
+  <div class="bw-chart-wrap">
+    <div class="bw-chart-header">
+      <div class="card-title" style="margin:0">Best windows today <span class="card-sub">· next 24 hours · coloured by cleanliness vs historical average</span></div>
+      <div class="bw-chart-region">
+        <label>Region</label>
+        <select id="bw-region" onchange="buildBestWindow()"></select>
+      </div>
+    </div>
+    <div class="bw-bars" id="bw-bars"></div>
+    <div class="bw-reco" id="bw-reco"></div>
+  </div>
+
+  <!-- Workload calculator — comparison mode -->
+  <div class="comp-calc">
+    <div class="card-title" style="margin-bottom:12px">Carbon cost calculator <span class="card-sub">· compare regions · live intensity</span></div>
+    <div class="comp-inputs">
       <div class="calc-field">
         <label>Workload size (kWh)</label>
         <input type="number" id="calc-kwh" value="100" min="1" max="100000" oninput="updateCalc()">
       </div>
       <div class="calc-field">
-        <label>Region</label>
+        <label>Region A</label>
         <select id="calc-region" onchange="updateCalc()"></select>
       </div>
       <div class="calc-field">
-        <label>Run when</label>
-        <select id="calc-when" onchange="updateCalc()">
-          <option value="now">Right now</option>
-          <option value="best">Best forecast window</option>
-          <option value="worst">Peak forecast window</option>
-        </select>
+        <label>Region B</label>
+        <select id="calc-region-b" onchange="updateCalc()"></select>
       </div>
     </div>
-    <div class="calc-results" id="calc-results"></div>
-    <div class="api-note">Intensity values are live from the NESO Carbon Intensity API. Forecast windows use 48h ahead data.</div>
+    <div class="tbl-wrap">
+      <table class="comp-table" id="comp-table">
+        <thead><tr>
+          <th>Scenario</th>
+          <th>Intensity now</th>
+          <th>Best window</th>
+          <th>CO₂ now</th>
+          <th>CO₂ best window</th>
+          <th>Saving vs best</th>
+        </tr></thead>
+        <tbody id="comp-tbody"></tbody>
+      </table>
+    </div>
+    <div class="comp-reco" id="comp-reco"></div>
+    <div class="api-note" style="margin-top:8px">Live intensity from NESO API. Best window from 48h forecast. GB = national average.</div>
   </div>
 
   <!-- Scheduling score -->
@@ -1592,6 +1647,7 @@ function fetchLiveData(){
       if(document.getElementById('now-tbody')) renderNowTable();
       // Only call updateCalc if the calculator has been initialised
       if(document.getElementById('calc-region') && document.getElementById('calc-region').options.length > 0) updateCalc();
+      if(document.getElementById('bw-region') && document.getElementById('bw-region').options.length > 0) buildBestWindow();
       if(document.getElementById('sched-scores')) buildSchedScores();
     })
     .catch(function(err){
@@ -1625,52 +1681,194 @@ function fetchRegionForecast(regionName, callback){
     .catch(function(){ callback(null); });
 }
 
+
+// ══════════════════════════════════════════════════════════
+// BEST-WINDOW CHART (24h)
+// ══════════════════════════════════════════════════════════
+function initBestWindow(){
+  var sel = document.getElementById('bw-region');
+  if(!sel || sel.options.length > 0) return;
+  RG.forEach(function(r){ var o=document.createElement('option'); o.value=o.text=r; sel.appendChild(o); });
+  // Default to user's likely region — Yorkshire as default (middle England)
+  sel.value = 'Yorkshire';
+  buildBestWindow();
+}
+
+function buildBestWindow(){
+  var barsEl = document.getElementById('bw-bars');
+  var recoEl = document.getElementById('bw-reco');
+  if(!barsEl || !recoEl) return;
+
+  var sel = document.getElementById('bw-region');
+  var region = sel ? sel.value : RG[0];
+
+  var now = new Date();
+  var startH = now.getUTCHours();
+  var mo = now.getUTCMonth();
+
+  // Get 24 hours of forecast values starting now
+  var fVals = (LIVE_FORECAST[region] && LIVE_FORECAST[region].length > 0)
+    ? LIVE_FORECAST[region].slice(0,24).map(function(p){return p.intensity||0;})
+    : FORECAST[region] ? FORECAST[region].slice(0,24) : null;
+
+  if(!fVals){
+    barsEl.innerHTML = '<div style="color:var(--ink3);font-size:12px;padding:20px 0">No forecast data available</div>';
+    return;
+  }
+
+  // Build historical distribution for percentile colouring
+  var hist = [];
+  Object.keys(MONTHLY).forEach(function(k){
+    var kmo = parseInt(k.split('-')[1]) - 1;
+    if(Math.abs(kmo - mo) <= 1 || (mo===0&&kmo===11) || (mo===11&&kmo===0)){
+      var monthAvg = MONTHLY[k][region];
+      if(monthAvg != null){
+        var profMean = Object.values(HOURLY).reduce(function(s,hv){return s+(hv[region]||0);},0)/24;
+        if(profMean > 0) hist.push(monthAvg);
+      }
+    }
+  });
+  var hMin = hist.length ? Math.min.apply(null,hist) : 0;
+  var hMax = hist.length ? Math.max.apply(null,hist) : 400;
+
+  var maxVal = Math.max.apply(null, fVals);
+  var minVal = Math.min.apply(null, fVals);
+
+  // Find best 3 windows
+  var sorted = fVals.map(function(v,i){return{i:i,v:v};}).sort(function(a,b){return a.v-b.v;});
+  var bestIdxSet = new Set(sorted.slice(0,3).map(function(x){return x.i;}));
+  var bestIdx = sorted[0].i;
+
+  // Bar colours based on percentile (where does this hour sit in history?)
+  function barCol(v){
+    var pct = hMax > hMin ? (v - hMin)/(hMax - hMin) : 0.5;
+    // Green = clean (low pct), red = dirty (high pct)
+    if(pct < 0.3) return '#16a34a';
+    if(pct < 0.55) return '#65a30d';
+    if(pct < 0.7) return '#d97706';
+    return '#dc2626';
+  }
+
+  // Render bars
+  var html = fVals.map(function(v,i){
+    var h = (startH + i) % 24;
+    var lbl = i % 4 === 0 ? String(h).padStart(2,'0') : '';
+    var heightPct = maxVal > 0 ? Math.max(8, Math.round((v / maxVal) * 100)) : 50;
+    var isBest = bestIdxSet.has(i);
+    var isNow = i === 0;
+    var tipDay = i < (24 - startH) ? 'Today' : 'Tmrw';
+    return '<div class="bw-bar-col">' +
+      '<div class="bw-bar-tip">'+tipDay+' '+String(h).padStart(2,'0')+':00 &bull; '+v+' gCO&#8322;/kWh</div>' +
+      '<div class="bw-bar'+(isBest?' best':'')+'" style="height:'+heightPct+'%;background:'+barCol(v)+';opacity:'+(isNow?'1':'0.82')+'"></div>' +
+      '<div class="bw-bar-lbl">'+lbl+'</div>' +
+    '</div>';
+  }).join('');
+  barsEl.innerHTML = html;
+
+  // Recommendation line
+  var bestH = (startH + bestIdx) % 24;
+  var bestDay = bestIdx < (24 - startH) ? 'today' : 'tomorrow';
+  var bestVal = fVals[bestIdx];
+  var nowVal = fVals[0];
+  var saving = Math.round(nowVal - bestVal);
+
+  var recoHtml;
+  if(saving <= 5){
+    recoHtml = '<span class="bw-go">Now is a good time to run workloads in '+region+'</span> — '+nowVal+' gCO\u2082/kWh, close to the forecast minimum. No significant advantage to waiting.';
+  } else {
+    recoHtml = 'Current intensity: <strong>'+nowVal+' gCO\u2082/kWh</strong>. ' +
+      'Best window: <span class="bw-go">'+String(bestH).padStart(2,'0')+':00 '+bestDay+'</span> at <strong>'+bestVal+' gCO\u2082/kWh</strong>. ' +
+      'Shifting a 100 kWh workload saves approximately <strong>'+(saving/10).toFixed(1)+' kg CO\u2082</strong>.';
+  }
+  recoEl.innerHTML = recoHtml;
+}
 // ══════════════════════════════════════════════════════════
 // WORKLOAD CALCULATOR
 // ══════════════════════════════════════════════════════════
 function initCalc(){
-  var sel = document.getElementById('calc-region');
-  if(!sel || sel.options.length > 0) return;
-  RG.forEach(function(r){ var o=document.createElement('option'); o.value=o.text=r; sel.appendChild(o); });
-  sel.value = 'Yorkshire';
+  var selA = document.getElementById('calc-region');
+  var selB = document.getElementById('calc-region-b');
+  if(!selA || selA.options.length > 0) return;
+  RG.forEach(function(r){
+    var oA=document.createElement('option'); oA.value=oA.text=r; selA.appendChild(oA);
+    var oB=document.createElement('option'); oB.value=oB.text=r; selB.appendChild(oB);
+  });
+  selA.value = 'Yorkshire';
+  selB.value = 'North Scotland';
   updateCalc();
 }
 
 function updateCalc(){
   var kwh = parseFloat(document.getElementById('calc-kwh')&&document.getElementById('calc-kwh').value) || 100;
-  var region = document.getElementById('calc-region')&&document.getElementById('calc-region').value || RG[0];
-  var when = document.getElementById('calc-when')&&document.getElementById('calc-when').value || 'now';
-
-  var nowIntensity = NOW[region] || 200;
+  var regionA = (document.getElementById('calc-region')&&document.getElementById('calc-region').value) || RG[4];
+  var regionB = (document.getElementById('calc-region-b')&&document.getElementById('calc-region-b').value) || RG[0];
   var liveFc = (typeof LIVE_FORECAST !== 'undefined') ? LIVE_FORECAST : {};
 
-  // Get best/worst from forecast
-  var fVals = liveFc[region] ? liveFc[region].map(function(p){ return p.intensity||0; }) : FORECAST[region];
-  var bestI = fVals ? Math.min.apply(null, fVals) : nowIntensity * 0.6;
-  var worstI = fVals ? Math.max.apply(null, fVals) : nowIntensity * 1.3;
-  var bestSlot = fVals ? (liveFc[region] ? liveFc[region][fVals.indexOf(bestI)] : null) : null;
-  var worstSlot = fVals ? (liveFc[region] ? liveFc[region][fVals.indexOf(worstI)] : null) : null;
-
-  var useIntensity = when==='now' ? nowIntensity : when==='best' ? bestI : worstI;
-  var kgCO2 = (kwh * useIntensity / 1000);
-  var kgBest = (kwh * bestI / 1000);
-  var saving = kgCO2 - kgBest;
-
   var fmt = function(v){ return v >= 1 ? v.toFixed(1)+' kg' : (v*1000).toFixed(0)+' g'; };
-  var intensityCol = useIntensity < 100 ? 'var(--low)' : useIntensity < 250 ? 'var(--mid)' : 'var(--high)';
 
-  var bestTimeStr = '';
-  if(bestSlot && bestSlot.from){
-    var bd = new Date(bestSlot.from);
-    bestTimeStr = String(bd.getUTCHours()).padStart(2,'0')+':'+String(bd.getUTCMinutes()).padStart(2,'0');
+  function getStats(region){
+    var nowI = NOW[region] || 200;
+    var fVals = (liveFc[region] && liveFc[region].length > 0)
+      ? liveFc[region].map(function(p){return p.intensity||0;})
+      : FORECAST[region];
+    var bestI = fVals ? Math.min.apply(null,fVals) : Math.round(nowI*0.7);
+    var bestSlot = (fVals && liveFc[region] && liveFc[region].length > 0)
+      ? liveFc[region][fVals.indexOf(bestI)] : null;
+    var bestTime = '';
+    if(bestSlot && bestSlot.from){
+      var bd=new Date(bestSlot.from);
+      bestTime = String(bd.getUTCHours()).padStart(2,'0')+':'+String(bd.getUTCMinutes()).padStart(2,'0');
+    }
+    return {
+      region: region,
+      nowI: nowI,
+      bestI: bestI,
+      bestTime: bestTime,
+      kgNow: kwh * nowI / 1000,
+      kgBest: kwh * bestI / 1000
+    };
   }
 
-  var resultsEl = document.getElementById('calc-results');
-  if(!resultsEl) return;
-  resultsEl.innerHTML =
-    '<div class="calc-result"><div class="calc-result-lbl">CO₂ emitted</div><div class="calc-result-val" style="color:'+intensityCol+'">'+fmt(kgCO2)+'</div><div class="calc-result-sub">'+kwh+' kWh at '+Math.round(useIntensity)+' gCO₂/kWh '+(when==='now'?'now':when==='best'?'at best window':'at peak')+'</div></div>' +
-    '<div class="calc-result"><div class="calc-result-lbl">Best window saving</div><div class="calc-result-val" style="color:var(--low)">'+fmt(Math.max(0,saving))+'</div><div class="calc-result-sub">'+(saving>0?'shifting to '+(bestTimeStr||'best window')+' saves '+fmt(saving):'already at optimal intensity')+'</div></div>' +
-    '<div class="calc-result"><div class="calc-result-lbl">Trees equivalent</div><div class="calc-result-val" style="color:var(--ink2)">'+(kgCO2/21).toFixed(1)+'</div><div class="calc-result-sub">days of CO₂ absorbed by a mature tree (21g/day avg)</div></div>';
+  // GB average
+  var gbNowI = Math.round(RG.reduce(function(s,r){return s+NOW[r];},0)/RG.length);
+  var gbBestI = Math.round(gbNowI * 0.75); // approximate
+  var gbStats = { region:'GB average', nowI:gbNowI, bestI:gbBestI, bestTime:'', kgNow:kwh*gbNowI/1000, kgBest:kwh*gbBestI/1000 };
+
+  var rows = [getStats(regionA), getStats(regionB), gbStats];
+
+  // Find cleanest option (lowest kgBest)
+  var bestRow = rows.reduce(function(b,r){return r.kgBest < b.kgBest ? r : b;}, rows[0]);
+
+  var tbody = document.getElementById('comp-tbody');
+  if(!tbody) return;
+
+  tbody.innerHTML = rows.map(function(row){
+    var isBest = row.region === bestRow.region;
+    var nowCol = row.nowI < 100 ? 'var(--low)' : row.nowI < 200 ? '#65a30d' : row.nowI < 300 ? 'var(--mid)' : 'var(--high)';
+    var bestCol = row.bestI < 100 ? 'var(--low)' : row.bestI < 200 ? '#65a30d' : row.bestI < 300 ? 'var(--mid)' : 'var(--high)';
+    var saving = Math.max(0, row.kgNow - row.kgBest);
+    return '<tr'+(isBest?' class="best-row"':'')+'>'+
+      '<td><strong>'+row.region+'</strong>'+(isBest?' <span style="font-size:10px;color:var(--low);font-weight:600">★ cleanest</span>':'')+'</td>'+
+      '<td class="cv" style="color:'+nowCol+'">'+row.nowI+'</td>'+
+      '<td class="cv" style="color:'+bestCol+'">'+row.bestI+(row.bestTime?' <span style="font-size:10px;font-weight:400;color:var(--ink3)">'+row.bestTime+'</span>':'')+'</td>'+
+      '<td class="cv" style="color:'+nowCol+'">'+fmt(row.kgNow)+'</td>'+
+      '<td class="cv" style="color:'+bestCol+'">'+fmt(row.kgBest)+'</td>'+
+      '<td class="cv '+(saving>0.1?'comp-saving':'')+'">'+fmt(saving)+'</td>'+
+    '</tr>';
+  }).join('');
+
+  // Recommendation
+  var worstRow = rows.reduce(function(b,r){return r.kgBest > b.kgBest ? r : b;}, rows[0]);
+  var saved = Math.max(0, worstRow.kgBest - bestRow.kgBest);
+  var recoEl = document.getElementById('comp-reco');
+  if(!recoEl) return;
+  if(saved < 0.05){
+    recoEl.innerHTML = 'All three scenarios have similar carbon cost at the best window. Timing matters more than location right now.';
+  } else {
+    recoEl.innerHTML = 'Running in <strong>'+bestRow.region+'</strong> at its best window saves <strong style="color:var(--low)">'+fmt(saved)+'</strong> vs '+worstRow.region+' per '+kwh+' kWh. ' +
+      (bestRow.bestTime ? 'Optimal time: <strong>'+bestRow.bestTime+'</strong>.' : '') +
+      ' The location decision is worth <strong>'+(saved/kwh*1000).toFixed(0)+' gCO\u2082 per kWh</strong>.';
+  }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1770,7 +1968,8 @@ function buildYoY(){
 // ROUTING
 // ══════════════════════════════════════════════════════════
 var INIT = {};
-var BUILD = {now:buildNow, forecast:initForecast, mix:buildMix, heatmap:initHM, trend:buildTrend, region:buildRegion, about:function(){}};
+function initNow(){ buildNow(); initBestWindow(); initCalc(); buildSchedScores(); }
+var BUILD = {now:initNow, forecast:initForecast, mix:buildMix, heatmap:initHM, trend:buildTrend, region:buildRegion, about:function(){}};
 function go(name){
   document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
   document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
