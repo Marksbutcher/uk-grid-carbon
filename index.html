@@ -1234,7 +1234,8 @@ function setTrendMode(m){
 
 function renderTrend(){
   const months=Object.keys(MONTHLY).sort();
-  kc('trend');
+  // Destroy previous chart directly — tChart is stored separately from CH[]
+  if(tChart){ tChart.destroy(); tChart=null; }
   const ctx=document.getElementById('trend-chart').getContext('2d');
 
   if(tMode==='intensity'){
