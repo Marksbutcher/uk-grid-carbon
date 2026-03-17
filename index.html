@@ -157,6 +157,8 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .chart-wrap{position:relative;background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
 #trend-wrap{height:300px}
 #trend-wrap canvas{height:100%!important}
+#fc-chart,#fc-mix-chart{max-height:220px!important}
+#rgn-fc-chart,#rgn-sched-chart,#rgn-trend-chart,#rgn-mix-chart{max-height:200px!important}
 .chart-toggle{display:flex;gap:0;border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;margin-bottom:12px;width:fit-content}
 .ct-btn{padding:5px 14px;font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--white);border:none;cursor:pointer;color:var(--ink3);transition:all .12s}
 .ct-btn.active{background:var(--acc);color:#fff}
@@ -797,7 +799,7 @@ function buildRegion(){
     return '<div class="fl-item"><div class="fl-dot" style="background:' + FUEL_COLORS[f] + '"></div>' + FUEL_LABELS[f] + ' ' + mix[f] + '%</div>';
   }).join('');
 
-  var renew2 = (mix.wind||0)+(mix.solar||0)+(mix.hydro||0)+(mix.nuclear||0);
+  var renew2 = Math.round((mix.wind||0)+(mix.solar||0)+(mix.hydro||0)+(mix.nuclear||0));
   document.getElementById('rgn-stats').innerHTML =
     '<div class="stat-cell c-b"><div class="stat-lbl">Now</div><div class="stat-val" style="color:'+ci(now)+'">'+now+'</div><div class="stat-sub">gCO₂/kWh</div></div>' +
     '<div class="stat-cell c-g"><div class="stat-lbl">7-day avg</div><div class="stat-val">'+Math.round(D7[r])+'</div><div class="stat-sub">gCO₂/kWh</div></div>' +
@@ -829,7 +831,7 @@ function buildRegion(){
       tension:.4, fill:true
     }]},
     options:{
-      responsive:true, maintainAspectRatio:true,
+      responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b',callbacks:{label:function(c){return Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
       scales:{x:{ticks:{color:'#6b6b6b',font:{size:9},maxRotation:0},grid:{color:'#f0ede6'}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
     }
@@ -853,7 +855,7 @@ function buildRegion(){
     data:{labels:hrs.map(function(h){return String(h).padStart(2,'0')+':00';}), datasets:[{
       data:hAvg, backgroundColor:hAvg.map(function(v){return ci(v,.75);}), borderColor:hAvg.map(function(v){return ci(v,1);}), borderWidth:1, borderRadius:2
     }]},
-    options:{responsive:true, maintainAspectRatio:true,
+    options:{responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return 'avg '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
       scales:{x:{ticks:{color:'#6b6b6b',font:{size:8},maxRotation:40},grid:{display:false}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'avg gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
     }
@@ -872,7 +874,7 @@ function buildRegion(){
       {label:r, data:months.map(function(m){return MONTHLY[m]?.[r]??null;}), borderColor:RCOL[r], backgroundColor:RCOL[r]+'15', borderWidth:2, pointRadius:0, tension:.35, fill:false},
       {label:'GB average', data:gbAvgs, borderColor:'#94a3b8', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:.35, fill:false}
     ]},
-    options:{responsive:true, maintainAspectRatio:true, interaction:{mode:'index',intersect:false},
+    options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
       plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:12,padding:10}}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return c.dataset.label+': '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
       scales:{x:{ticks:{color:'#6b6b6b',font:{size:9},maxRotation:40,maxTicksLimit:20},grid:{color:'#f0ede6'}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
     }
@@ -891,7 +893,7 @@ function buildRegion(){
   }).filter(Boolean);
   CH['rgn-mix'] = new Chart(ctx4, {
     type:'line', data:{labels:months, datasets:mixDs2},
-    options:{responsive:true, maintainAspectRatio:true, interaction:{mode:'index',intersect:false},
+    options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
       plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:10,padding:8}}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y+'%';}}}},
       scales:{x:{stacked:true,ticks:{color:'#6b6b6b',font:{size:9},maxRotation:40,maxTicksLimit:20},grid:{display:false}}, y:{stacked:true,max:100,ticks:{color:'#6b6b6b',font:{size:9},callback:function(v){return v+'%';}},grid:{color:'#f0ede6'}}}
     }
@@ -1014,7 +1016,7 @@ function buildForecast(){
       tension:.4,fill:false
     }]},
     options:{
-      responsive:true,maintainAspectRatio:true,
+      responsive:true,maintainAspectRatio:false,
       plugins:{
         legend:{display:false},
         tooltip:{
@@ -1068,7 +1070,7 @@ function buildForecast(){
     type:'line',
     data:{labels,datasets:mixDs},
     options:{
-      responsive:true,maintainAspectRatio:true,
+      responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
         legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:9,family:'Barlow'},boxWidth:10,padding:8}},
@@ -1321,7 +1323,7 @@ function buildMix(){
   // ── Regional bars sorted by clean share ──
   var rgData = RG.map(function(r){
     var m = CM[r];
-    var clean = (m.wind||0)+(m.solar||0)+(m.hydro||0)+(m.nuclear||0);
+    var clean = Math.round((m.wind||0)+(m.solar||0)+(m.hydro||0)+(m.nuclear||0));
     return { r:r, m:m, clean:clean };
   }).sort(function(a,b){ return b.clean-a.clean; });
 
@@ -1335,7 +1337,7 @@ function buildMix(){
     return '<div class="mrb-row" onclick="openRegion(this.dataset.r)" data-r="'+d.r+'">' +
       '<div class="mrb-label">'+d.r+'</div>' +
       '<div class="mrb-bar-wrap">'+segs+'</div>' +
-      '<div class="mrb-val" style="color:'+col+'">'+d.clean+'%</div>' +
+      '<div class="mrb-val" style="color:'+col+'">'+Math.round(d.clean)+'%</div>' +
     '</div>';
   }).join('');
 
