@@ -337,7 +337,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
   <button class="tab" onclick="go('mix')">Power Mix</button>
   <button class="tab" onclick="go('heatmap')">Heatmap</button>
   <button class="tab" onclick="go('trend')">Trend</button>
-  <button class="tab" id="tab-region" onclick="go('region')" style="display:none">Region</button>
+  <button class="tab" id="tab-region" onclick="go('region')">Region</button>
   <button class="tab" onclick="go('about')">About</button>
 </nav>
 
@@ -820,13 +820,10 @@ function renderNowTable(){
 }
 function hlR(r){ openRegion(r); }
 
-let activeRegion = null;
+let activeRegion = RG[0]; // default so Region tab works immediately
 
 function openRegion(r){
   activeRegion = r;
-  var rtab = document.getElementById('tab-region');
-  rtab.style.display = '';
-  rtab.textContent = 'Region';
   go('region');
 }
 
@@ -1689,8 +1686,9 @@ function initBestWindow(){
   var sel = document.getElementById('bw-region');
   if(!sel || sel.options.length > 0) return;
   RG.forEach(function(r){ var o=document.createElement('option'); o.value=o.text=r; sel.appendChild(o); });
-  // Default to user's likely region — Yorkshire as default (middle England)
-  sel.value = 'Yorkshire';
+  // Default to the currently cleanest region
+  var cleanest = RG.reduce(function(best,r){ return NOW[r] < NOW[best] ? r : best; }, RG[0]);
+  sel.value = cleanest;
   buildBestWindow();
 }
 
@@ -1829,9 +1827,18 @@ function updateCalc(){
     };
   }
 
-  // GB average
+  // GB average — use mean of regional forecasts for best window
   var gbNowI = Math.round(RG.reduce(function(s,r){return s+NOW[r];},0)/RG.length);
-  var gbBestI = Math.round(gbNowI * 0.75); // approximate
+  var gbFcArrays = RG.map(function(r){
+    return (liveFc[r] && liveFc[r].length > 0) ? liveFc[r].map(function(p){return p.intensity||0;}) : FORECAST[r];
+  }).filter(Boolean);
+  var gbBestI = gbNowI;
+  if(gbFcArrays.length > 0){
+    var gbFcAvg = gbFcArrays[0].map(function(_,i){
+      return Math.round(gbFcArrays.reduce(function(s,a){return s+(a[i]||0);},0)/gbFcArrays.length);
+    });
+    gbBestI = Math.min.apply(null, gbFcAvg);
+  }
   var gbStats = { region:'GB average', nowI:gbNowI, bestI:gbBestI, bestTime:'', kgNow:kwh*gbNowI/1000, kgBest:kwh*gbBestI/1000 };
 
   var rows = [getStats(regionA), getStats(regionB), gbStats];
