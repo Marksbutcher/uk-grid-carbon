@@ -46,7 +46,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:
 header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 28px;display:flex;align-items:stretch;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:200}
 .hd-left{padding:14px 24px 14px 0;border-right:1px solid var(--rule)}
 .hd-title{font-family:var(--cond);font-size:20px;font-weight:700;letter-spacing:.01em;color:var(--ink);line-height:1.1}
-.hd-sub{font-size:10px;color:var(--ink3);margin-top:2px;letter-spacing:.01em}
+.hd-sub{font-size:11px;color:var(--ink3);margin-top:2px;letter-spacing:.01em}
 .hd-chips{display:flex;align-items:center;gap:7px;flex:1}
 .chip{font-size:10px;font-weight:500;padding:2px 8px;border-radius:3px;border:1px solid var(--rule2);color:var(--ink3);background:var(--paper);letter-spacing:.02em;white-space:nowrap}
 .chip.live{color:var(--low);border-color:#bbf7d0;background:#f0fdf4;display:flex;align-items:center;gap:5px}
@@ -76,12 +76,12 @@ main{padding:24px 28px;max-width:1800px;display:flex;flex-direction:column;gap:1
 /* ── SECTION HEADER ── */
 .sh{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule);padding-bottom:7px;margin-bottom:2px}
 .sh h2{font-family:var(--cond);font-size:17px;font-weight:700;letter-spacing:.02em}
-.sh p{font-size:11px;color:var(--ink3);font-weight:300}
+.sh p{font-size:12px;color:var(--ink3);font-weight:300}
 
 /* ── CARD ── */
 .card{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
 .card-title{font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:.03em;color:var(--ink2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.card-sub{font-size:10px;color:var(--ink3);font-weight:400;letter-spacing:0;text-transform:none}
+.card-sub{font-size:11px;color:var(--ink3);font-weight:400;letter-spacing:0;text-transform:none}
 
 /* ── STAT STRIP ── */
 .stat-cell{background:var(--white);padding:10px 12px;position:relative}
@@ -89,7 +89,7 @@ main{padding:24px 28px;max-width:1800px;display:flex;flex-direction:column;gap:1
 .c-g::after{background:var(--low)}.c-r::after{background:var(--high)}.c-a::after{background:var(--mid)}.c-b::after{background:var(--acc)}
 .stat-lbl{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stat-val{font-family:var(--cond);font-size:22px;font-weight:600;line-height:1;letter-spacing:-.01em}
-.stat-sub{font-size:9px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.35}
+.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.35}
 
 /* ── GAUGE ── */
 .gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0}
@@ -101,7 +101,7 @@ main{padding:24px 28px;max-width:1800px;display:flex;flex-direction:column;gap:1
 .fuel-seg{height:100%;transition:width .4s ease;cursor:default;position:relative}
 .fuel-seg:hover::after{content:attr(data-tip);position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10px;padding:3px 7px;border-radius:3px;white-space:nowrap;pointer-events:none;z-index:10}
 .fuel-legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px}
-.fl-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--ink3)}
+.fl-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink3)}
 .fl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 
 /* ── TABLE ── */
@@ -147,7 +147,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .ins-cell{background:var(--white);padding:13px 16px}
 .ins-lbl{font-family:var(--cond);font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
 .ins-val{font-family:var(--cond);font-size:20px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
-.ins-sub{font-size:10px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.5}
+.ins-sub{font-size:12px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.5}
 
 /* ── CHARTS ── */
 .pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
@@ -169,20 +169,20 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .best-window{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r);padding:12px 16px;margin-top:12px;display:flex;align-items:flex-start;gap:12px}
 .bw-icon{font-size:22px;flex-shrink:0}
 .bw-title{font-family:var(--cond);font-size:14px;font-weight:700;color:var(--low);margin-bottom:2px}
-.bw-body{font-size:11px;color:var(--ink2);font-weight:300;line-height:1.5}
+.bw-body{font-size:13px;color:var(--ink2);font-weight:300;line-height:1.5}
 .bw-warning{background:#fef3c7;border:1px solid #fde68a;border-radius:var(--r);padding:12px 16px;margin-top:8px;display:flex;align-items:flex-start;gap:12px}
 .bw-warning .bw-title{color:var(--mid)}
 
 /* ── ABOUT ── */
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
 .ab{background:var(--white);padding:22px}
-.ab h3{font-family:var(--cond);font-size:15px;font-weight:700;letter-spacing:.03em;color:var(--ink);margin-bottom:8px}
-.ab p{font-size:11px;color:var(--ink2);line-height:1.7;margin-bottom:6px;font-weight:300}
+.ab h3{font-family:var(--cond);font-size:16px;font-weight:700;letter-spacing:.03em;color:var(--ink);margin-bottom:8px}
+.ab p{font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:6px;font-weight:300}
 .ab p:last-child{margin:0}
 .ab a{color:var(--acc)}
 .flist{list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:5px}
-.flist li{font-size:10px;color:var(--ink3);padding:7px 10px;background:var(--paper);border-radius:var(--r);line-height:1.5;font-weight:300}
-.flist li strong{display:block;font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);margin-bottom:1px}
+.flist li{font-size:12px;color:var(--ink3);padding:7px 10px;background:var(--paper);border-radius:var(--r);line-height:1.5;font-weight:300}
+.flist li strong{display:block;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);margin-bottom:1px}
 
 /* ── TOOLTIP ── */
 #tip{position:fixed;background:var(--white);border:1px solid var(--rule2);border-radius:var(--r);padding:9px 13px;font-size:10px;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:170px}
@@ -203,7 +203,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--ink3);font-size:12px;font-weight:300;gap:10px}
 .spin{width:16px;height:16px;border:2px solid var(--rule2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.api-note{font-size:9px;color:var(--ink3);font-weight:300;font-style:italic;margin-top:6px}
+.api-note{font-size:11px;color:var(--ink3);font-weight:300;font-style:italic;margin-top:6px}
 
 /* ── WORKLOAD CALCULATOR ── */
 .calc-wrap{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
@@ -216,7 +216,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .calc-result{background:var(--white);padding:10px 12px}
 .calc-result-lbl{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px}
 .calc-result-val{font-family:var(--cond);font-size:22px;font-weight:700;line-height:1}
-.calc-result-sub{font-size:9px;color:var(--ink3);margin-top:2px;font-weight:300}
+.calc-result-sub{font-size:11px;color:var(--ink3);margin-top:2px;font-weight:300}
 @media(max-width:600px){.calc-results{grid-template-columns:1fr 1fr}.calc-inputs{flex-direction:column;align-items:flex-start}}
 
 /* ── SCHEDULING SCORE ── */
@@ -224,29 +224,29 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .score-ring{flex-shrink:0}
 .score-context{flex:1;min-width:160px}
 .score-label{font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
-.score-detail{font-size:11px;color:var(--ink2);font-weight:300;line-height:1.6}
+.score-detail{font-size:13px;color:var(--ink2);font-weight:300;line-height:1.6}
 /* ── POWER MIX PANEL ── */
 .mix-region-bars { display:flex; flex-direction:column; gap:3px; }
 .mrb-row { display:flex; align-items:center; gap:10px; cursor:pointer; padding:4px 0; border-radius:var(--r); transition:background .1s; }
 .mrb-row:hover { background:var(--paper); }
-.mrb-label { font-size:11px; color:var(--ink2); width:175px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mrb-label { font-size:13px; color:var(--ink2); width:175px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mrb-bar-wrap { flex:1; height:18px; border-radius:2px; overflow:hidden; display:flex; }
 .mrb-seg { height:100%; transition:flex .4s ease; }
 .mrb-val { font-family:var(--cond); font-size:12px; font-weight:600; width:38px; text-align:right; flex-shrink:0; }
 .mix-legend { display:flex; flex-wrap:wrap; gap:5px 14px; margin-top:12px; padding-top:10px; border-top:1px solid var(--rule); }
-.mix-leg-item { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--ink3); }
+.mix-leg-item { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--ink3); }
 .mix-leg-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
 .insight-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:var(--r); overflow:hidden; }
 .is-cell { background:var(--white); padding:10px 12px; }
 .is-lbl { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .is-val { font-family:var(--cond); font-size:20px; font-weight:700; line-height:1; }
-.is-sub { font-size:9px; color:var(--ink3); margin-top:2px; font-weight:300; line-height:1.35; }
+.is-sub { font-size:11px; color:var(--ink3); margin-top:2px; font-weight:300; line-height:1.35; }
 .analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 .analysis-card { background:var(--white); border:1px solid var(--rule); border-radius:var(--r); padding:18px; }
-.analysis-card h3 { font-family:var(--cond); font-size:15px; font-weight:700; letter-spacing:.02em; color:var(--ink); margin-bottom:6px; }
-.analysis-card p { font-size:11px; color:var(--ink2); line-height:1.7; font-weight:300; margin-bottom:6px; }
+.analysis-card h3 { font-family:var(--cond); font-size:16px; font-weight:700; letter-spacing:.02em; color:var(--ink); margin-bottom:6px; }
+.analysis-card p { font-size:13px; color:var(--ink2); line-height:1.7; font-weight:300; margin-bottom:6px; }
 .analysis-card p:last-child { margin:0; }
-.analysis-card strong { font-weight:500; color:var(--ink); }
+.analysis-card strong { font-weight:500; color:var(--ink); font-size:inherit; }
 .wind-scatter { position:relative; }
 @media(max-width:900px){ .insight-strip{grid-template-columns:repeat(4,1fr)} .analysis-grid{grid-template-columns:1fr} }
 @media(max-width:480px){ .insight-strip{grid-template-columns:1fr 1fr} .mrb-label{width:110px} }
@@ -254,10 +254,10 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .rgn-hd{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .rgn-hd-name{font-family:var(--cond);font-size:28px;font-weight:700;color:var(--ink)}
 .rgn-hd-val{font-family:var(--cond);font-size:22px;font-weight:600}
-.rgn-hd-meta{font-size:11px;color:var(--ink3);font-weight:300;margin-top:2px}
+.rgn-hd-meta{font-size:12px;color:var(--ink3);font-weight:300;margin-top:2px}
 .rgn-hd-fbar{flex:1;min-width:180px}
 .rgn-hd-fbar-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
-.back-btn{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);background:var(--paper);border:1px solid var(--rule2);border-radius:var(--r);padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap;margin-left:auto}
+.back-btn{font-family:var(--cond);font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);background:var(--paper);border:1px solid var(--rule2);border-radius:var(--r);padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap;margin-left:auto}
 .back-btn:hover{color:var(--ink);border-color:var(--rule)}
 .rgn-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
 @media(max-width:900px){.rgn-stats{grid-template-columns:repeat(3,1fr)}}
@@ -390,7 +390,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
   <div class="fcast-region-sel">
     <label>Region</label>
     <select id="fc-region" onchange="buildForecast()"></select>
-    <span style="font-size:10px;color:var(--ink3);margin-left:4px">Forecast uses historical patterns scaled to current conditions. Treat as indicative, not guaranteed.</span>
+    <span style="font-size:12px;color:var(--ink3);margin-left:4px">Forecast uses historical patterns scaled to current conditions. Treat as indicative, not guaranteed.</span>
   </div>
 
   <div class="g2">
@@ -453,15 +453,15 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
   <div class="g3" style="margin-top:2px">
     <div style="background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px">
       <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--low);margin-bottom:4px">Coal exit</div>
-      <div style="font-size:10px;color:var(--ink3);font-weight:300;line-height:1.6">The last UK coal power station closed in September 2024. At the start of this dataset coal still supplied around 5% of GB electricity.</div>
+      <div style="font-size:13px;color:var(--ink3);font-weight:300;line-height:1.6">The last UK coal power station closed in September 2024. At the start of this dataset coal still supplied around 5% of GB electricity.</div>
     </div>
     <div style="background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px">
       <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:4px">Wind growth</div>
-      <div style="font-size:10px;color:var(--ink3);font-weight:300;line-height:1.6">Offshore wind capacity more than doubled since 2018. Scotland regularly exports surplus clean power south, often running near zero intensity.</div>
+      <div style="font-size:13px;color:var(--ink3);font-weight:300;line-height:1.6">Offshore wind capacity more than doubled since 2018. Scotland regularly exports surplus clean power south, often running near zero intensity.</div>
     </div>
     <div style="background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px">
       <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);margin-bottom:4px">Regional gap</div>
-      <div style="font-size:10px;color:var(--ink3);font-weight:300;line-height:1.6">South Wales and the East Midlands remain structurally high-intensity. Transmission constraints prevent clean Scottish power from always reaching English regions.</div>
+      <div style="font-size:13px;color:var(--ink3);font-weight:300;line-height:1.6">South Wales and the East Midlands remain structurally high-intensity. Transmission constraints prevent clean Scottish power from always reaching English regions.</div>
     </div>
   </div>
   <!-- Year-on-year comparison -->
@@ -861,7 +861,7 @@ function buildRegion(){
     }
   });
   var bestHr=hAvg.indexOf(Math.min.apply(null,hAvg)), worstHr=hAvg.indexOf(Math.max.apply(null,hAvg));
-  document.getElementById('rgn-sched-tip').innerHTML = '<div style="font-size:10px;color:var(--ink3);line-height:1.6">Best hour: <strong style="color:var(--low)">'+String(bestHr).padStart(2,'0')+':00</strong> ('+Math.round(hAvg[bestHr])+' avg). Peak: <strong style="color:var(--high)">'+String(worstHr).padStart(2,'0')+':00</strong> ('+Math.round(hAvg[worstHr])+' avg). Shifting 1 MWh saves ~'+Math.round(hAvg[worstHr]-hAvg[bestHr])+' kg CO₂.</div>';
+  document.getElementById('rgn-sched-tip').innerHTML = '<div style="font-size:13px;color:var(--ink3);line-height:1.6">Best hour: <strong style="color:var(--low)">'+String(bestHr).padStart(2,'0')+':00</strong> ('+Math.round(hAvg[bestHr])+' avg). Peak: <strong style="color:var(--high)">'+String(worstHr).padStart(2,'0')+':00</strong> ('+Math.round(hAvg[worstHr])+' avg). Shifting 1 MWh saves ~'+Math.round(hAvg[worstHr]-hAvg[bestHr])+' kg CO₂.</div>';
 
   // Trend vs GB
   kc('rgn-trend');
@@ -921,9 +921,9 @@ function buildRegion(){
   var fossilPct2=(mix.gas||0)+(mix.coal||0);
   document.getElementById('rgn-context').innerHTML =
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">' +
-    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Generation profile</div><div style="font-size:11px;color:var(--ink2);line-height:1.7;font-weight:300">Primary source: <strong style="color:'+FUEL_COLORS[topFuel]+'">'+FUEL_LABELS[topFuel]+' ('+mix[topFuel]+'%)</strong>. Renewables and nuclear supply '+renew2+'%. Fossil fuels: '+fossilPct2+'%.</div></div>' +
-    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Decarbonisation</div><div style="font-size:11px;color:var(--ink2);line-height:1.7;font-weight:300">Average intensity has fallen from <strong>'+Math.round(base)+'</strong> in 2018–19 to <strong>'+Math.round(avg)+'</strong> gCO₂/kWh — a <strong style="color:var(--low)">'+drop+'% reduction</strong>.</div></div>' +
-    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Scheduling</div><div style="font-size:11px;color:var(--ink2);line-height:1.7;font-weight:300">Use the heatmap above to find the best hours. Target green cells for deferrable workloads. The 17:00–20:00 band is typically the highest-carbon window.</div></div>' +
+    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Generation profile</div><div style="font-size:13px;color:var(--ink2);line-height:1.7;font-weight:300">Primary source: <strong style="color:'+FUEL_COLORS[topFuel]+'">'+FUEL_LABELS[topFuel]+' ('+mix[topFuel]+'%)</strong>. Renewables and nuclear supply '+renew2+'%. Fossil fuels: '+fossilPct2+'%.</div></div>' +
+    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Decarbonisation</div><div style="font-size:13px;color:var(--ink2);line-height:1.7;font-weight:300">Average intensity has fallen from <strong>'+Math.round(base)+'</strong> in 2018–19 to <strong>'+Math.round(avg)+'</strong> gCO₂/kWh — a <strong style="color:var(--low)">'+drop+'% reduction</strong>.</div></div>' +
+    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Scheduling</div><div style="font-size:13px;color:var(--ink2);line-height:1.7;font-weight:300">Use the heatmap above to find the best hours. Target green cells for deferrable workloads. The 17:00–20:00 band is typically the highest-carbon window.</div></div>' +
     '</div>';
 
   // Heatmap tooltips
