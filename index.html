@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK Regional Carbon Intensity</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --paper:  #f7f6f2;
+  --white:  #ffffff;
+  --ink:    #1a1a1a;
+  --ink2:   #3d3d3d;
+  --ink3:   #6b6b6b;
+  --rule:   #e0ddd6;
+  --rule2:  #cecbc3;
+  --low:    #16a34a;
+  --mid:    #d97706;
+  --high:   #dc2626;
+  --acc:    #1d4ed8;
+  --r:      4px;
+  --sans:   'Barlow', -apple-system, sans-serif;
+  --cond:   'Barlow Condensed', sans-serif;
+}
+/* fuel colours */
+:root {
+  --f-gas:     #f97316;
+  --f-wind:    #0ea5e9;
+  --f-nuclear: #8b5cf6;
+  --f-solar:   #eab308;
+  --f-biomass: #84cc16;
+  --f-hydro:   #06b6d4;
+  --f-coal:    #44403c;
+  --f-imports: #94a3b8;
+  --f-other:   #d1d5db;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--paper)}
+::-webkit-scrollbar-thumb{background:var(--rule2);border-radius:3px}
+
+/* ── HEADER ── */
+header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 28px;display:flex;align-items:stretch;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:200}
+.hd-left{padding:14px 24px 14px 0;border-right:1px solid var(--rule)}
+.hd-title{font-family:var(--cond);font-size:20px;font-weight:700;letter-spacing:.01em;color:var(--ink);line-height:1.1}
+.hd-sub{font-size:10px;color:var(--ink3);margin-top:2px;letter-spacing:.01em}
+.hd-chips{display:flex;align-items:center;gap:7px;flex:1}
+.chip{font-size:10px;font-weight:500;padding:2px 8px;border-radius:3px;border:1px solid var(--rule2);color:var(--ink3);background:var(--paper);letter-spacing:.02em;white-space:nowrap}
+.chip.live{color:var(--low);border-color:#bbf7d0;background:#f0fdf4;display:flex;align-items:center;gap:5px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--low);animation:blink 2.2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hd-right{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ink3);white-space:nowrap}
+.grad-bar{width:90px;height:7px;border-radius:2px;background:linear-gradient(90deg,#16a34a,#d97706 45%,#dc2626)}
+
+/* ── NAV ── */
+nav{background:var(--white);border-bottom:2px solid var(--rule);padding:0 28px;display:flex;gap:0;overflow-x:auto}
+nav::-webkit-scrollbar{height:0}
+.tab{padding:11px 16px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:var(--cond);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);cursor:pointer;white-space:nowrap;transition:color .14s,border-color .14s}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+
+/* ── LAYOUT ── */
+main{padding:24px 28px;max-width:1800px;display:flex;flex-direction:column;gap:18px}
+.panel{display:none;flex-direction:column;gap:18px;animation:rise .2s ease both}
+.panel.active{display:flex}
+@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+@media(max-width:1100px){.g2,.g3{grid-template-columns:1fr}}
+@media(max-width:600px){.g4{grid-template-columns:1fr 1fr}}
+
+/* ── SECTION HEADER ── */
+.sh{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--rule);padding-bottom:7px;margin-bottom:2px}
+.sh h2{font-family:var(--cond);font-size:17px;font-weight:700;letter-spacing:.02em}
+.sh p{font-size:11px;color:var(--ink3);font-weight:300}
+
+/* ── CARD ── */
+.card{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
+.card-title{font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:.03em;color:var(--ink2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-sub{font-size:10px;color:var(--ink3);font-weight:400;letter-spacing:0;text-transform:none}
+
+/* ── STAT STRIP ── */
+.stat-cell{background:var(--white);padding:10px 12px;position:relative}
+.stat-cell::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.c-g::after{background:var(--low)}.c-r::after{background:var(--high)}.c-a::after{background:var(--mid)}.c-b::after{background:var(--acc)}
+.stat-lbl{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-val{font-family:var(--cond);font-size:22px;font-weight:600;line-height:1;letter-spacing:-.01em}
+.stat-sub{font-size:9px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.35}
+
+/* ── GAUGE ── */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0}
+.gauge-svg{overflow:visible}
+.gauge-label{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:.03em;color:var(--ink2);text-transform:uppercase;text-align:center;margin-top:6px}
+
+/* ── FUEL BAR ── */
+.fuel-stack{height:28px;border-radius:3px;overflow:hidden;display:flex;margin:8px 0}
+.fuel-seg{height:100%;transition:width .4s ease;cursor:default;position:relative}
+.fuel-seg:hover::after{content:attr(data-tip);position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10px;padding:3px 7px;border-radius:3px;white-space:nowrap;pointer-events:none;z-index:10}
+.fuel-legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px}
+.fl-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--ink3)}
+.fl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ── TABLE ── */
+.tbl-card{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+.tbl-wrap{overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:11.5px}
+table.dt thead{background:var(--paper)}
+table.dt th{padding:7px 11px;text-align:left;font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--rule);white-space:nowrap;cursor:pointer;user-select:none}
+table.dt th:hover{color:var(--ink)}
+table.dt th.sa::after{content:' ↑';color:var(--acc)}
+table.dt th.sd::after{content:' ↓';color:var(--acc)}
+table.dt td{padding:6px 11px;border-bottom:1px solid var(--rule);white-space:nowrap;color:var(--ink2)}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tr:hover td{background:var(--paper)}
+table.dt tr.hl td{background:#eff6ff}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.tn{font-variant-numeric:tabular-nums}
+.civ{font-weight:600;font-family:var(--cond);font-size:13px}
+.mbar{display:inline-block;height:4px;border-radius:2px;vertical-align:middle;margin-left:4px}
+.dp{color:var(--low)}.dn{color:var(--high)}.dm{color:var(--mid)}
+.bdg{display:inline-block;font-size:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:2px}
+.bdg-g{background:#dcfce7;color:#15803d}.bdg-r{background:#fee2e2;color:#b91c1c}.bdg-a{background:#fef3c7;color:#b45309}
+
+/* ── FUEL MIX IN TABLE ── */
+.fmix-bar{display:flex;height:6px;border-radius:2px;overflow:hidden;width:80px;flex-shrink:0}
+
+/* ── HEATMAP ── */
+.hm-ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.ctrl-grp{display:flex;align-items:center;gap:6px}
+.ctrl-grp label{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+select{font-family:var(--sans);font-size:11px;font-weight:400;color:var(--ink);background:var(--white);border:1px solid var(--rule2);border-radius:var(--r);padding:5px 24px 5px 9px;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b6b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;min-width:130px}
+select:focus{border-color:var(--acc)}
+.hm-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:12px}
+table.hm{border-collapse:separate;border-spacing:2px;min-width:max-content}
+.hm-corner{position:sticky;left:0;background:var(--white);z-index:3}
+table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);text-align:center;padding:2px 2px;white-space:nowrap}
+.hm-rl{font-size:10px;color:var(--ink2);text-align:right;padding-right:10px !important;white-space:nowrap;min-width:135px;position:sticky;left:0;background:var(--white);z-index:2}
+.hm-cell{width:23px;height:19px;border-radius:2px;cursor:default;transition:transform .1s;position:relative}
+.hm-cell:hover{transform:scale(1.9);z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.hm-legend{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:10px;color:var(--ink3)}
+.hm-grad{width:110px;height:7px;border-radius:2px}
+.insight{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;margin-top:14px}
+.ins-cell{background:var(--white);padding:13px 16px}
+.ins-lbl{font-family:var(--cond);font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+.ins-val{font-family:var(--cond);font-size:20px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
+.ins-sub{font-size:10px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.5}
+
+/* ── CHARTS ── */
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.pill{font-size:10px;padding:2px 9px;border:1px solid var(--rule2);border-radius:20px;cursor:pointer;color:var(--ink3);background:var(--white);transition:all .12s}
+.pill:hover{color:var(--ink);border-color:var(--rule2)}
+.pill.on{color:var(--acc);border-color:var(--acc);background:#eef2ff}
+.chart-wrap{position:relative;background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
+.chart-toggle{display:flex;gap:0;border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;margin-bottom:12px;width:fit-content}
+.ct-btn{padding:5px 14px;font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--white);border:none;cursor:pointer;color:var(--ink3);transition:all .12s}
+.ct-btn.active{background:var(--acc);color:#fff}
+
+/* ── FORECAST ── */
+.fcast-region-sel{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.fcast-region-sel label{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.best-window{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r);padding:12px 16px;margin-top:12px;display:flex;align-items:flex-start;gap:12px}
+.bw-icon{font-size:22px;flex-shrink:0}
+.bw-title{font-family:var(--cond);font-size:14px;font-weight:700;color:var(--low);margin-bottom:2px}
+.bw-body{font-size:11px;color:var(--ink2);font-weight:300;line-height:1.5}
+.bw-warning{background:#fef3c7;border:1px solid #fde68a;border-radius:var(--r);padding:12px 16px;margin-top:8px;display:flex;align-items:flex-start;gap:12px}
+.bw-warning .bw-title{color:var(--mid)}
+
+/* ── ABOUT ── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+.ab{background:var(--white);padding:22px}
+.ab h3{font-family:var(--cond);font-size:15px;font-weight:700;letter-spacing:.03em;color:var(--ink);margin-bottom:8px}
+.ab p{font-size:11px;color:var(--ink2);line-height:1.7;margin-bottom:6px;font-weight:300}
+.ab p:last-child{margin:0}
+.ab a{color:var(--acc)}
+.flist{list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:5px}
+.flist li{font-size:10px;color:var(--ink3);padding:7px 10px;background:var(--paper);border-radius:var(--r);line-height:1.5;font-weight:300}
+.flist li strong{display:block;font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);margin-bottom:1px}
+
+/* ── TOOLTIP ── */
+#tip{position:fixed;background:var(--white);border:1px solid var(--rule2);border-radius:var(--r);padding:9px 13px;font-size:10px;pointer-events:none;display:none;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:170px}
+#tip-name{font-family:var(--cond);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.tr{display:flex;justify-content:space-between;gap:14px;color:var(--ink3);padding:1px 0}
+.tv{color:var(--ink);font-weight:500}
+
+
+
+/* ── LIVE DATA ── */
+.live-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid #bbf7d0;background:#f0fdf4;color:var(--low)}
+.live-badge.stale{border-color:#fde68a;background:#fef9ee;color:var(--mid)}
+.live-badge.error{border-color:#fecaca;background:#fff5f5;color:var(--high)}
+.pulse{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 2.2s ease-in-out infinite}
+.data-ts{font-size:9px;color:var(--ink3);margin-left:6px;font-weight:300}
+.skeleton{background:linear-gradient(90deg,var(--rule) 25%,var(--paper) 50%,var(--rule) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:3px;color:transparent!important}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--ink3);font-size:12px;font-weight:300;gap:10px}
+.spin{width:16px;height:16px;border:2px solid var(--rule2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.api-note{font-size:9px;color:var(--ink3);font-weight:300;font-style:italic;margin-top:6px}
+
+/* ── WORKLOAD CALCULATOR ── */
+.calc-wrap{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
+.calc-inputs{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.calc-field{display:flex;flex-direction:column;gap:4px}
+.calc-field label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.calc-field input,.calc-field select{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink);background:var(--paper);border:1px solid var(--rule2);border-radius:var(--r);padding:6px 10px;width:120px;outline:none}
+.calc-field input:focus,.calc-field select:focus{border-color:var(--acc)}
+.calc-results{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+.calc-result{background:var(--white);padding:10px 12px}
+.calc-result-lbl{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px}
+.calc-result-val{font-family:var(--cond);font-size:22px;font-weight:700;line-height:1}
+.calc-result-sub{font-size:9px;color:var(--ink3);margin-top:2px;font-weight:300}
+@media(max-width:600px){.calc-results{grid-template-columns:1fr 1fr}.calc-inputs{flex-direction:column;align-items:flex-start}}
+
+/* ── SCHEDULING SCORE ── */
+.score-ring-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.score-ring{flex-shrink:0}
+.score-context{flex:1;min-width:160px}
+.score-label{font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.score-detail{font-size:11px;color:var(--ink2);font-weight:300;line-height:1.6}
+/* ── POWER MIX PANEL ── */
+.mix-region-bars { display:flex; flex-direction:column; gap:3px; }
+.mrb-row { display:flex; align-items:center; gap:10px; cursor:pointer; padding:4px 0; border-radius:var(--r); transition:background .1s; }
+.mrb-row:hover { background:var(--paper); }
+.mrb-label { font-size:11px; color:var(--ink2); width:175px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mrb-bar-wrap { flex:1; height:18px; border-radius:2px; overflow:hidden; display:flex; }
+.mrb-seg { height:100%; transition:flex .4s ease; }
+.mrb-val { font-family:var(--cond); font-size:12px; font-weight:600; width:38px; text-align:right; flex-shrink:0; }
+.mix-legend { display:flex; flex-wrap:wrap; gap:5px 14px; margin-top:12px; padding-top:10px; border-top:1px solid var(--rule); }
+.mix-leg-item { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--ink3); }
+.mix-leg-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+.insight-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:var(--r); overflow:hidden; }
+.is-cell { background:var(--white); padding:10px 12px; }
+.is-lbl { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.is-val { font-family:var(--cond); font-size:20px; font-weight:700; line-height:1; }
+.is-sub { font-size:9px; color:var(--ink3); margin-top:2px; font-weight:300; line-height:1.35; }
+.analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.analysis-card { background:var(--white); border:1px solid var(--rule); border-radius:var(--r); padding:18px; }
+.analysis-card h3 { font-family:var(--cond); font-size:15px; font-weight:700; letter-spacing:.02em; color:var(--ink); margin-bottom:6px; }
+.analysis-card p { font-size:11px; color:var(--ink2); line-height:1.7; font-weight:300; margin-bottom:6px; }
+.analysis-card p:last-child { margin:0; }
+.analysis-card strong { font-weight:500; color:var(--ink); }
+.wind-scatter { position:relative; }
+@media(max-width:900px){ .insight-strip{grid-template-columns:repeat(4,1fr)} .analysis-grid{grid-template-columns:1fr} }
+@media(max-width:480px){ .insight-strip{grid-template-columns:1fr 1fr} .mrb-label{width:110px} }
+/* ── REGION DETAIL ── */
+.rgn-hd{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:18px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.rgn-hd-name{font-family:var(--cond);font-size:28px;font-weight:700;color:var(--ink)}
+.rgn-hd-val{font-family:var(--cond);font-size:22px;font-weight:600}
+.rgn-hd-meta{font-size:11px;color:var(--ink3);font-weight:300;margin-top:2px}
+.rgn-hd-fbar{flex:1;min-width:180px}
+.rgn-hd-fbar-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.back-btn{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);background:var(--paper);border:1px solid var(--rule2);border-radius:var(--r);padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap;margin-left:auto}
+.back-btn:hover{color:var(--ink);border-color:var(--rule)}
+.rgn-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
+@media(max-width:900px){.rgn-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.rgn-stats{grid-template-columns:1fr 1fr}}
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){.g2,.g3{grid-template-columns:1fr}}
+@media(max-width:700px){
+  header{padding:0 14px;flex-wrap:wrap;gap:0}
+  .hd-left{border-right:none;padding-right:0;border-bottom:1px solid var(--rule);width:100%;padding:10px 0}
+  .hd-chips{padding:7px 0}
+  .hd-right{display:none}
+  main{padding:12px 14px;gap:14px}
+  nav{padding:0 14px}
+  .tab{padding:9px 10px;font-size:11px}
+  .about-grid{grid-template-columns:1fr}
+  .insight{grid-template-columns:1fr}
+  .hm-cell{width:17px;height:14px}
+  .hm-rl{min-width:85px;font-size:9px}
+}
+@media(max-width:600px){.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.hm-ctrl{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd-left">
+    <div class="hd-title">UK Regional Carbon Intensity</div>
+    <div class="hd-sub">National Grid ESO · 14 regions · half-hourly · Sep 2018 – Mar 2026</div>
+  </div>
+  <div class="hd-chips">
+    <span class="live-badge" id="live-badge"><span class="pulse"></span>Loading...</span><span class="data-ts" id="data-ts"></span>
+    <span class="chip">130,089 readings</span>
+    <span class="chip">gCO₂/kWh</span>
+  </div>
+  <div class="hd-right">
+    <span style="color:var(--low);font-weight:500">Low CO₂</span>
+    <div class="grad-bar"></div>
+    <span style="color:var(--high);font-weight:500">High CO₂</span>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" onclick="go('now')">Now</button>
+  <button class="tab" onclick="go('forecast')">Forecast</button>
+  <button class="tab" onclick="go('mix')">Power Mix</button>
+  <button class="tab" onclick="go('heatmap')">Heatmap</button>
+  <button class="tab" onclick="go('trend')">Trend</button>
+  <button class="tab" id="tab-region" onclick="go('region')" style="display:none">Region</button>
+  <button class="tab" onclick="go('about')">About</button>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════ NOW ══════════════════════════ -->
+<div id="p-now" class="panel active">
+  <div class="sh"><h2>Current readings</h2><p>Most recent half-hour · 19 March 2026 · 09:30 UTC</p></div>
+  <div class="g4" id="now-stats"></div>
+  <div class="tbl-card">
+    <div style="padding:12px 14px 0">
+      <div class="card-title" style="margin:0">All regions <span class="card-sub">· click row to open region detail · click header to sort</span></div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="dt" id="now-tbl">
+        <thead><tr>
+          <th onclick="srt('name')" id="th-name">Region</th>
+          <th onclick="srt('now')" id="th-now" class="sd">Now</th>
+          <th onclick="srt('d7')" id="th-d7">7d avg</th>
+          <th onclick="srt('d30')" id="th-d30">30d avg</th>
+          <th onclick="srt('all')" id="th-all">All-time</th>
+          <th onclick="srt('vs')" id="th-vs">vs avg</th>
+          <th onclick="srt('drop')" id="th-drop">Since 2018</th>
+          <th>Fuel mix now</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="now-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start">
+      <div>
+        <div class="card-title" style="margin-bottom:10px">GB generation mix right now <span class="card-sub">estimated · hover segments</span></div>
+        <div class="fuel-stack" id="gb-fuel-bar"></div>
+        <div class="fuel-legend" id="gb-fuel-legend"></div>
+      </div>
+      <div style="min-width:200px;border-left:1px solid var(--rule);padding-left:24px">
+        <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:6px">Clean vs fossil</div>
+        <div id="renew-gauge"></div>
+      </div>
+    </div>
+  </div>
+  <!-- Workload calculator -->
+  <div class="calc-wrap">
+    <div class="card-title" style="margin-bottom:12px">Carbon cost calculator <span class="card-sub">· estimate CO₂ for a workload based on live intensity</span></div>
+    <div class="calc-inputs">
+      <div class="calc-field">
+        <label>Workload size (kWh)</label>
+        <input type="number" id="calc-kwh" value="100" min="1" max="100000" oninput="updateCalc()">
+      </div>
+      <div class="calc-field">
+        <label>Region</label>
+        <select id="calc-region" onchange="updateCalc()"></select>
+      </div>
+      <div class="calc-field">
+        <label>Run when</label>
+        <select id="calc-when" onchange="updateCalc()">
+          <option value="now">Right now</option>
+          <option value="best">Best forecast window</option>
+          <option value="worst">Peak forecast window</option>
+        </select>
+      </div>
+    </div>
+    <div class="calc-results" id="calc-results"></div>
+    <div class="api-note">Intensity values are live from the NESO Carbon Intensity API. Forecast windows use 48h ahead data.</div>
+  </div>
+
+  <!-- Scheduling score -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Scheduling score by region <span class="card-sub">· how clean is right now vs historical average for this hour</span></div>
+    <div id="sched-scores"></div>
+    <div class="api-note" style="margin-top:8px">Score = percentile rank vs all historical readings for this hour of day and month. 100 = cleanest on record. Based on 7+ years of half-hourly data.</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════ FORECAST ══════════════════════════ -->
+<div id="p-forecast" class="panel">
+  <div class="sh"><h2>48-hour forecast</h2><p>Based on NESO Carbon Intensity API forecast model · 96h ahead capability · generation mix and intensity</p></div>
+
+  <div class="fcast-region-sel">
+    <label>Region</label>
+    <select id="fc-region" onchange="buildForecast()"></select>
+    <span style="font-size:10px;color:var(--ink3);margin-left:4px">Forecast uses historical patterns scaled to current conditions. Treat as indicative, not guaranteed.</span>
+  </div>
+
+  <div class="g2">
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">Intensity forecast — next 48 hours</div>
+      <canvas id="fc-chart" height="200"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">Estimated generation mix — next 48 hours</div>
+      <canvas id="fc-mix-chart" height="200"></canvas>
+    </div>
+  </div>
+
+  <div id="fc-windows"></div>
+</div>
+
+<!-- ══════════════════════════ HEATMAP ══════════════════════════ -->
+<div id="p-heatmap" class="panel">
+  <div class="sh"><h2>Heatmap</h2><p>Green = lower carbon · red = higher · hover any cell for exact value</p></div>
+  <div class="hm-ctrl">
+    <div class="ctrl-grp"><label>Region</label><select id="hm-r" onchange="buildHM()"></select></div>
+    <div class="ctrl-grp"><label>Period</label>
+      <select id="hm-p" onchange="buildHM()">
+        <option value="24h">Last 24 hours</option>
+        <option value="weekly">52 weeks</option>
+        <option value="monthly" selected>12 months (avg)</option>
+        <option value="yearly">Year by year (2018–2026)</option>
+      </select>
+    </div>
+    <div class="ctrl-grp" id="hm-scale-grp"><label>Scale</label>
+      <select id="hm-s" onchange="buildHM()">
+        <option value="abs">Absolute — compare regions fairly</option>
+        <option value="rel">Per-region — show each region's own trend</option>
+      </select>
+    </div>
+  </div>
+  <div class="hm-wrap" id="hm-out"></div>
+  <div class="hm-legend">
+    <span style="color:var(--low);font-weight:500">Low</span>
+    <div class="hm-grad" style="background:linear-gradient(90deg,#16a34a,#d97706 50%,#dc2626)"></div>
+    <span style="color:var(--high);font-weight:500">High</span>
+    <span style="margin-left:8px;color:var(--ink3)">Hover any cell for exact value</span>
+  </div>
+  <div class="insight" id="hm-insight" style="display:none"></div>
+</div>
+
+<!-- ══════════════════════════ TREND ══════════════════════════ -->
+<div id="p-trend" class="panel">
+  <div class="sh"><h2>Long-term trend</h2><p>Monthly averages · select regions · toggle between intensity and generation mix</p></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px">
+    <div class="pills" id="trend-pills" style="margin:0"></div>
+    <div class="chart-toggle">
+      <button class="ct-btn active" id="tt-intensity" onclick="setTrendMode('intensity')">Intensity</button>
+      <button class="ct-btn" id="tt-mix" onclick="setTrendMode('mix')">Generation mix</button>
+    </div>
+  </div>
+  <div class="chart-wrap" id="trend-wrap">
+    <canvas id="trend-chart" height="340"></canvas>
+  </div>
+  <div class="g3" style="margin-top:2px">
+    <div style="background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px">
+      <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--low);margin-bottom:4px">Coal exit</div>
+      <div style="font-size:10px;color:var(--ink3);font-weight:300;line-height:1.6">The last UK coal power station closed in September 2024. At the start of this dataset coal still supplied around 5% of GB electricity.</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px">
+      <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:4px">Wind growth</div>
+      <div style="font-size:10px;color:var(--ink3);font-weight:300;line-height:1.6">Offshore wind capacity more than doubled since 2018. Scotland regularly exports surplus clean power south, often running near zero intensity.</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:14px 16px">
+      <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);margin-bottom:4px">Regional gap</div>
+      <div style="font-size:10px;color:var(--ink3);font-weight:300;line-height:1.6">South Wales and the East Midlands remain structurally high-intensity. Transmission constraints prevent clean Scottish power from always reaching English regions.</div>
+    </div>
+  </div>
+  <!-- Year-on-year comparison -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Year-on-year: same month comparison <span class="card-sub">· March across all years in dataset</span></div>
+    <div id="yoy-bars" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="api-note" style="margin-top:8px">Compares average intensity for the current calendar month across all available years. Shows whether the grid is improving year-on-year.</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════ ABOUT ══════════════════════════ -->
+<div id="p-about" class="panel">
+  <div class="sh"><h2>About</h2></div>
+  <div class="about-grid">
+    <div class="ab">
+      <h3>What is carbon intensity?</h3>
+      <p>Carbon intensity measures how much CO₂ is released per unit of electricity consumed — in grams per kilowatt-hour (gCO₂/kWh). The lower the number, the cleaner the electricity.</p>
+      <ul class="flist">
+        <li><strong>Nuclear, wind, solar</strong>Under 20 gCO₂/kWh</li>
+        <li><strong>Gas (combined cycle)</strong>350–400 gCO₂/kWh</li>
+        <li><strong>UK grid average today</strong>Around 150 gCO₂/kWh, down from ~280 in 2018</li>
+      </ul>
+    </div>
+    <div class="ab">
+      <h3>Why does it vary by region?</h3>
+      <p>The GB grid has 14 regional zones, each with a different generation mix and demand profile. Scotland connects to large wind farms and exports surplus clean power south. The Midlands and Wales have historically hosted more gas plant.</p>
+      <p>Transmission constraints mean clean Scottish power cannot always reach England, so regions sometimes run on dirtier local generation even when Scotland is in surplus.</p>
+    </div>
+    <div class="ab">
+      <h3>How to use this</h3>
+      <ul class="flist">
+        <li><strong>Compute scheduling</strong>Shift AI training, batch jobs or pipelines to low-intensity windows — typically overnight or midday</li>
+        <li><strong>EV fleet charging</strong>Avoid 17:00–20:00 in most English regions. Overnight is almost always better.</li>
+        <li><strong>Carbon reporting</strong>Use location- and time-specific intensity for accurate Scope 2 emissions (DESNZ methodology)</li>
+        <li><strong>Site selection</strong>A data centre in Scotland runs on a fraction of the grid carbon of one in the East Midlands</li>
+      </ul>
+    </div>
+    <div class="ab">
+      <h3>Data &amp; methodology</h3>
+      <p>Intensity data from the <a href="https://carbonintensity.org.uk" target="_blank">National Grid ESO Carbon Intensity API</a>. 130,089 half-hourly readings across 14 GB regions, Sep 2018 – Mar 2026.</p>
+      <p>Generation mix data is modelled by NESO using power flow analysis — it is an estimate of fuel consumption per region, not a direct metered measurement. Treat as indicative for operational decisions.</p>
+      <p>Forecast data uses NESO's ML-based 96h ahead model scaled to current conditions. Built by <a href="#">Posetiv Cloud</a>.</p>
+      <p style="margin-top:10px;font-family:var(--cond);font-size:11px;color:var(--ink3);letter-spacing:.03em">github.com/posetiv/uk-grid-carbon</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ REGION ══════════════════════════ -->
+<div id="p-region" class="panel">
+  <div class="rgn-hd">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <button class="back-btn" style="margin-left:0" onclick="go('now')">&#8592; All regions</button>
+      <div>
+        <div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px">Region</div>
+        <select id="rgn-selector" onchange="activeRegion=this.value;buildRegion()" style="font-family:var(--cond);font-size:16px;font-weight:700;color:var(--ink);background:none;border:none;border-bottom:2px solid var(--rule2);border-radius:0;padding:0 24px 2px 0;min-width:0;cursor:pointer;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22%3E%3Cpath d=%22M0 0l5 6 5-6z%22 fill=%22%236b6b6b%22/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 4px center"></select>
+      </div>
+    </div>
+    <div>
+      <div class="rgn-hd-val" id="rgn-val">—</div>
+      <div class="rgn-hd-meta" id="rgn-meta">gCO&#8322;/kWh now</div>
+    </div>
+    <div class="rgn-hd-fbar">
+      <div class="rgn-hd-fbar-label">Current fuel mix</div>
+      <div class="fuel-stack" id="rgn-fbar" style="height:22px"></div>
+      <div class="fuel-legend" id="rgn-fleg" style="margin-top:5px"></div>
+    </div>
+  </div>
+  <div class="rgn-stats" id="rgn-stats"></div>
+  <div class="g2">
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">48-hour intensity forecast</div>
+      <canvas id="rgn-fc-chart" height="200"></canvas>
+      <div id="rgn-fc-tip" style="margin-top:10px"></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">Average intensity by hour of day</div>
+      <canvas id="rgn-sched-chart" height="200"></canvas>
+      <div id="rgn-sched-tip" style="margin-top:10px"></div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">Monthly intensity vs GB average</div>
+      <canvas id="rgn-trend-chart" height="220"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">Estimated generation mix over time</div>
+      <canvas id="rgn-mix-chart" height="220"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Carbon intensity by hour and month <span class="card-sub">all-year average</span></div>
+    <div class="hm-wrap" style="border:none;padding:0" id="rgn-hm"></div>
+    <div class="hm-legend" style="margin-top:8px">
+      <span style="color:var(--low);font-weight:500">Low</span>
+      <div class="hm-grad" style="background:linear-gradient(90deg,#16a34a,#d97706 50%,#dc2626)"></div>
+      <span style="color:var(--high);font-weight:500">High</span>
+    </div>
+  </div>
+  <div class="card" id="rgn-context"></div>
+</div>
+
+<!-- ══════════════════════════ POWER MIX ══════════════════════════ -->
+<div id="p-mix" class="panel">
+  <div class="sh"><h2>Power mix</h2><p>What the GB grid is actually running on · and why it matters for carbon intensity</p></div>
+
+  <!-- Stat strip -->
+  <div class="insight-strip" id="mix-stats"></div>
+
+  <!-- Regional fuel mix bars -->
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px">Current fuel mix by region <span class="card-sub">· sorted by clean energy share · click a region to open detail</span></div>
+    <div class="mix-region-bars" id="mix-region-bars"></div>
+    <div class="mix-legend" id="mix-legend"></div>
+  </div>
+
+  <!-- Structural change chart + key numbers -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:18px">
+    <div class="chart-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="card-title" style="margin:0">GB generation mix 2018–2026 <span class="card-sub">monthly · stacked area</span></div>
+      </div>
+      <canvas id="mix-history-chart" height="280"></canvas>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="card" style="flex:1">
+        <div class="card-title" style="margin-bottom:10px">What has changed</div>
+        <div id="mix-change-facts" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wind-intensity correlation -->
+  <div class="analysis-grid">
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">Wind share vs carbon intensity <span class="card-sub">monthly GB averages · each point = one month</span></div>
+      <canvas id="mix-scatter-chart" height="260"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="card-title" style="margin-bottom:10px">Gas dependency over time <span class="card-sub">GB gas share monthly</span></div>
+      <canvas id="mix-gas-chart" height="260"></canvas>
+    </div>
+  </div>
+
+  <!-- Analysis text -->
+  <div class="analysis-grid" id="mix-analysis"></div>
+
+</div>
+
+</main>
+
+<div id="tip">
+  <div id="tip-name"></div>
+  <div class="tr"><span id="tip-l1">Value</span><span class="tv" id="tip-v1"></span></div>
+  <div class="tr"><span id="tip-l2">Period</span><span class="tv" id="tip-v2"></span></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CORE DATA
+// ═══════════════════════════════════════════════════
+const RG = ["North Scotland","South Scotland","North West England","North East England","Yorkshire","North Wales and Merseyside","South Wales","West Midlands","East Midlands","East England","South West England","South England","London","South East England"];
+
+const RAVG = {"North Scotland":65.8,"South Scotland":35.5,"North West England":63.5,"North East England":39.0,"Yorkshire":203.0,"North Wales and Merseyside":134.1,"South Wales":297.7,"West Midlands":166.1,"East Midlands":277.9,"East England":144.6,"South West England":204.3,"South England":231.0,"London":171.5,"South East England":183.8};
+const BASE = {"North Scotland":108.2,"South Scotland":38.4,"North West England":66.3,"North East England":37.2,"Yorkshire":307.5,"North Wales and Merseyside":242.8,"South Wales":356.2,"West Midlands":188.4,"East Midlands":418.8,"East England":155.3,"South West England":127.5,"South England":279.8,"London":237.2,"South East England":234.5};
+const D7   = {"North Scotland":3.2,"South Scotland":18.4,"North West England":58.2,"North East England":32.5,"Yorkshire":128.4,"North Wales and Merseyside":82.1,"South Wales":248.3,"West Midlands":138.2,"East Midlands":185.4,"East England":85.2,"South West England":218.6,"South England":168.4,"London":128.5,"South East England":148.2};
+const D30  = {"North Scotland":18.4,"South Scotland":22.1,"North West England":52.4,"North East England":28.8,"Yorkshire":138.2,"North Wales and Merseyside":88.4,"South Wales":265.2,"West Midlands":148.5,"East Midlands":198.4,"East England":112.4,"South West England":238.5,"South England":182.4,"London":148.2,"South East England":162.5};
+const NOW  = {"North Scotland":40,"South Scotland":56,"North West England":145,"North East England":85,"Yorkshire":208,"North Wales and Merseyside":164,"South Wales":322,"West Midlands":245,"East Midlands":276,"East England":119,"South West England":124,"South England":169,"London":176,"South East England":180};
+const RCOL = {"North Scotland":"#059669","South Scotland":"#10b981","North West England":"#3b82f6","North East England":"#6366f1","Yorkshire":"#8b5cf6","North Wales and Merseyside":"#ec4899","South Wales":"#f97316","West Midlands":"#eab308","East Midlands":"#ef4444","East England":"#14b8a6","South West England":"#06b6d4","South England":"#a855f7","London":"#f43f5e","South East England":"#64748b"};
+
+const FUELS = ["gas","wind","nuclear","solar","biomass","hydro","coal","imports","other"];
+const FUEL_COLORS = {gas:"#f97316",wind:"#0ea5e9",nuclear:"#8b5cf6",solar:"#eab308",biomass:"#84cc16",hydro:"#06b6d4",coal:"#78716c",imports:"#94a3b8",other:"#d1d5db"};
+const FUEL_LABELS = {gas:"Gas",wind:"Wind",nuclear:"Nuclear",solar:"Solar",biomass:"Biomass",hydro:"Hydro",coal:"Coal",imports:"Imports",other:"Other"};
+
+// Current regional mix (estimated from NESO model)
+const CUR_MIX = {"North Scotland":{"gas":2,"wind":72,"nuclear":3,"solar":0,"biomass":2,"hydro":14,"coal":0,"imports":5,"other":2},"South Scotland":{"gas":8,"wind":45,"nuclear":22,"solar":0,"biomass":4,"hydro":12,"coal":0,"imports":6,"other":3},"North West England":{"gas":28,"wind":22,"nuclear":24,"solar":2,"biomass":8,"hydro":3,"coal":0,"imports":8,"other":5},"North East England":{"gas":18,"wind":38,"nuclear":4,"solar":2,"biomass":6,"hydro":5,"coal":0,"imports":18,"other":9},"Yorkshire":{"gas":48,"wind":18,"nuclear":3,"solar":4,"biomass":12,"hydro":1,"coal":0,"imports":9,"other":5},"North Wales and Merseyside":{"gas":35,"wind":22,"nuclear":20,"solar":1,"biomass":7,"hydro":5,"coal":0,"imports":7,"other":3},"South Wales":{"gas":55,"wind":14,"nuclear":6,"solar":2,"biomass":18,"hydro":3,"coal":0,"imports":0,"other":2},"West Midlands":{"gas":58,"wind":8,"nuclear":4,"solar":6,"biomass":11,"hydro":1,"coal":0,"imports":8,"other":4},"East Midlands":{"gas":52,"wind":10,"nuclear":5,"solar":8,"biomass":20,"hydro":0,"coal":0,"imports":3,"other":2},"East England":{"gas":38,"wind":24,"nuclear":14,"solar":12,"biomass":9,"hydro":0,"coal":0,"imports":2,"other":1},"South West England":{"gas":22,"wind":14,"nuclear":8,"solar":22,"biomass":7,"hydro":3,"coal":0,"imports":18,"other":6},"South England":{"gas":36,"wind":10,"nuclear":6,"solar":18,"biomass":6,"hydro":1,"coal":0,"imports":14,"other":9},"London":{"gas":42,"wind":4,"nuclear":5,"solar":8,"biomass":5,"hydro":0,"coal":0,"imports":28,"other":8},"South East England":{"gas":38,"wind":8,"nuclear":4,"solar":16,"biomass":6,"hydro":0,"coal":0,"imports":20,"other":8}};
+
+// Monthly GB generation mix (gas,wind,nuclear,solar,biomass,hydro,coal,imports,other)
+const MONTHLY_MIX = {"2018-09":[45,14,20,4,5,2,5,3,2],"2018-10":[42,18,20,2,5,2,6,3,2],"2018-11":[46,16,19,1,5,2,7,2,2],"2018-12":[44,18,20,1,6,2,6,2,1],"2019-01":[43,17,21,1,6,2,7,2,1],"2019-02":[42,22,20,2,5,2,4,2,1],"2019-03":[40,22,22,3,5,2,3,2,1],"2019-04":[38,21,22,6,5,2,3,2,1],"2019-05":[36,20,22,9,5,2,2,3,1],"2019-06":[39,17,21,11,4,2,1,4,1],"2019-07":[40,16,21,10,4,2,1,5,1],"2019-08":[38,18,22,9,5,2,0,5,1],"2019-09":[40,18,22,5,5,2,1,6,1],"2019-10":[43,20,21,2,5,2,2,4,1],"2019-11":[45,20,20,1,5,2,3,3,1],"2019-12":[42,24,20,1,5,2,2,3,1],"2020-01":[38,26,21,1,5,2,2,4,1],"2020-02":[36,30,20,2,5,2,1,3,1],"2020-03":[37,27,21,3,5,2,1,3,1],"2020-04":[32,30,22,7,5,2,0,2,0],"2020-05":[28,28,24,12,4,2,0,1,1],"2020-06":[34,21,22,14,4,2,0,2,1],"2020-07":[37,18,22,12,4,2,0,4,1],"2020-08":[40,18,21,10,4,2,0,4,1],"2020-09":[41,20,21,6,4,2,0,5,1],"2020-10":[38,26,21,2,5,2,0,5,1],"2020-11":[39,28,20,1,5,2,0,4,1],"2020-12":[40,28,20,1,5,2,0,3,1],"2021-01":[44,22,21,1,5,2,0,4,1],"2021-02":[36,32,21,2,4,2,0,2,1],"2021-03":[40,26,22,4,4,2,0,2,0],"2021-04":[38,24,22,8,4,2,0,2,0],"2021-05":[35,24,23,12,4,2,0,0,0],"2021-06":[34,22,23,13,4,2,0,2,0],"2021-07":[40,18,22,12,4,2,0,2,0],"2021-08":[42,18,22,10,4,2,0,2,0],"2021-09":[52,18,18,5,4,2,0,1,0],"2021-10":[45,26,18,2,5,2,0,2,0],"2021-11":[44,24,19,1,5,2,0,4,1],"2021-12":[42,26,19,1,5,2,0,4,1],"2022-01":[40,30,19,1,5,2,0,2,1],"2022-02":[34,38,18,2,4,2,0,2,0],"2022-03":[40,28,19,4,4,2,0,2,1],"2022-04":[38,26,20,8,4,2,0,2,0],"2022-05":[36,24,22,12,4,2,0,0,0],"2022-06":[36,20,22,14,4,2,0,2,0],"2022-07":[38,18,22,12,4,2,0,4,0],"2022-08":[42,18,21,10,4,2,0,3,0],"2022-09":[46,16,20,6,4,2,0,5,1],"2022-10":[42,26,20,2,4,2,0,3,1],"2022-11":[44,24,19,1,4,2,0,5,1],"2022-12":[42,26,19,1,4,2,0,5,1],"2023-01":[36,36,19,1,4,2,0,2,0],"2023-02":[34,34,20,2,4,2,0,4,0],"2023-03":[36,30,21,5,4,2,0,2,0],"2023-04":[32,30,22,9,4,2,0,1,0],"2023-05":[30,28,22,14,4,2,0,0,0],"2023-06":[30,24,22,16,4,2,0,2,0],"2023-07":[32,22,22,14,4,2,0,4,0],"2023-08":[34,22,22,12,4,2,0,4,0],"2023-09":[38,24,21,7,4,2,0,4,0],"2023-10":[36,32,20,2,4,2,0,4,0],"2023-11":[40,28,19,1,4,2,0,5,1],"2023-12":[36,32,20,1,4,2,0,5,0],"2024-01":[34,36,20,1,4,2,0,3,0],"2024-02":[30,42,19,2,4,2,0,1,0],"2024-03":[28,40,20,5,4,2,0,1,0],"2024-04":[24,40,21,10,4,2,0,0,0],"2024-05":[26,36,21,14,4,2,0,0,0],"2024-06":[24,32,22,17,4,2,0,0,0],"2024-07":[28,30,22,14,4,2,0,0,0],"2024-08":[26,30,23,14,4,2,0,1,0],"2024-09":[30,32,22,8,4,2,0,2,0],"2024-10":[32,36,21,2,4,2,0,3,0],"2024-11":[36,34,19,1,4,2,0,4,0],"2024-12":[34,38,18,1,4,2,0,3,0],"2025-01":[32,40,18,1,4,2,0,3,0],"2025-02":[28,44,18,2,4,2,0,2,0],"2025-03":[26,42,19,5,4,2,0,2,0],"2025-04":[22,40,20,12,4,2,0,0,0],"2025-05":[20,38,20,16,4,2,0,0,0],"2025-06":[18,34,21,20,4,2,0,1,0],"2025-07":[22,30,21,18,4,2,0,3,0],"2025-08":[24,28,22,16,4,2,0,4,0],"2025-09":[28,32,22,8,4,2,0,4,0],"2025-10":[30,38,20,2,4,2,0,4,0],"2025-11":[34,36,19,1,4,2,0,4,0],"2025-12":[30,40,18,1,4,2,0,5,0],"2026-01":[28,42,18,1,4,2,0,5,0],"2026-02":[24,48,18,2,4,2,0,2,0],"2026-03":[22,46,19,5,4,2,0,2,0]};
+
+const HOURLY = {"0":{"North Scotland":65.0,"South Scotland":34.8,"North West England":47.0,"North East England":30.5,"Yorkshire":180.5,"North Wales and Merseyside":112.9,"South Wales":273.8,"West Midlands":128.6,"East Midlands":241.3,"East England":123.4,"South West England":213.8,"South England":217.0,"London":150.2,"South East England":171.1},"1":{"North Scotland":65.5,"South Scotland":35.2,"North West England":46.8,"North East England":30.7,"Yorkshire":179.7,"North Wales and Merseyside":114.9,"South Wales":272.0,"West Midlands":125.6,"East Midlands":239.9,"East England":121.5,"South West England":212.4,"South England":215.2,"London":147.8,"South East England":169.5},"2":{"North Scotland":64.7,"South Scotland":35.5,"North West England":46.9,"North East England":30.7,"Yorkshire":179.4,"North Wales and Merseyside":115.1,"South Wales":268.4,"West Midlands":124.3,"East Midlands":239.4,"East England":120.3,"South West England":211.9,"South England":214.3,"London":147.1,"South East England":168.6},"3":{"North Scotland":63.1,"South Scotland":35.9,"North West England":46.8,"North East England":30.2,"Yorkshire":180.0,"North Wales and Merseyside":116.1,"South Wales":267.7,"West Midlands":122.6,"East Midlands":240.4,"East England":120.7,"South West England":212.4,"South England":215.3,"London":148.7,"South East England":171.1},"4":{"North Scotland":63.8,"South Scotland":37.3,"North West England":48.8,"North East England":30.7,"Yorkshire":184.2,"North Wales and Merseyside":122.7,"South Wales":274.5,"West Midlands":127.4,"East Midlands":246.9,"East England":124.6,"South West England":216.2,"South England":222.0,"London":155.2,"South East England":178.1},"5":{"North Scotland":65.9,"South Scotland":38.6,"North West England":55.0,"North East England":33.1,"Yorkshire":194.8,"North Wales and Merseyside":135.9,"South Wales":290.7,"West Midlands":143.5,"East Midlands":263.9,"East England":134.7,"South West England":221.1,"South England":235.3,"London":168.1,"South East England":188.4},"6":{"North Scotland":68.4,"South Scotland":38.1,"North West England":63.5,"North East England":36.6,"Yorkshire":206.1,"North Wales and Merseyside":145.8,"South Wales":306.0,"West Midlands":163.1,"East Midlands":280.9,"East England":146.3,"South West England":218.1,"South England":243.9,"London":179.2,"South East England":193.8},"7":{"North Scotland":68.0,"South Scotland":36.4,"North West England":69.0,"North East England":39.6,"Yorkshire":211.1,"North Wales and Merseyside":148.0,"South Wales":310.4,"West Midlands":175.8,"East Midlands":288.5,"East England":152.2,"South West England":203.3,"South England":240.9,"London":182.7,"South East England":191.8},"8":{"North Scotland":66.9,"South Scotland":35.5,"North West England":70.4,"North East England":41.7,"Yorkshire":210.9,"North Wales and Merseyside":144.5,"South Wales":305.7,"West Midlands":180.8,"East Midlands":289.3,"East England":151.5,"South West England":183.0,"South England":230.9,"London":180.2,"South East England":185.5},"9":{"North Scotland":66.7,"South Scotland":34.7,"North West England":70.2,"North East England":42.6,"Yorkshire":208.4,"North Wales and Merseyside":138.7,"South Wales":297.2,"West Midlands":179.3,"East Midlands":283.4,"East England":147.3,"South West England":161.3,"South England":218.5,"London":174.4,"South East England":179.4},"10":{"North Scotland":67.4,"South Scotland":34.2,"North West England":69.4,"North East England":42.7,"Yorkshire":205.9,"North Wales and Merseyside":134.4,"South Wales":288.2,"West Midlands":175.6,"East Midlands":275.8,"East England":142.4,"South West England":145.4,"South England":208.1,"London":169.3,"South East England":175.4},"11":{"North Scotland":67.9,"South Scotland":33.8,"North West England":68.6,"North East England":42.2,"Yorkshire":204.1,"North Wales and Merseyside":132.3,"South Wales":282.0,"West Midlands":172.3,"East Midlands":270.9,"East England":139.7,"South West England":137.2,"South England":202.7,"London":166.5,"South East England":172.5},"12":{"North Scotland":68.3,"South Scotland":33.7,"North West England":67.7,"North East England":41.4,"Yorkshire":202.7,"North Wales and Merseyside":130.6,"South Wales":278.9,"West Midlands":169.7,"East Midlands":268.6,"East England":138.6,"South West England":135.8,"South England":201.9,"London":165.2,"South East England":171.8},"13":{"North Scotland":68.8,"South Scotland":33.8,"North West England":67.4,"North East England":41.2,"Yorkshire":202.9,"North Wales and Merseyside":131.6,"South Wales":280.3,"West Midlands":170.2,"East Midlands":270.4,"East England":139.0,"South West England":141.5,"South England":206.0,"London":165.8,"South East England":173.6},"14":{"North Scotland":68.5,"South Scotland":34.5,"North West England":69.1,"North East England":41.9,"Yorkshire":207.3,"North Wales and Merseyside":136.4,"South Wales":288.7,"West Midlands":175.9,"East Midlands":280.0,"East England":142.8,"South West England":158.2,"South England":217.9,"London":170.9,"South East England":178.9},"15":{"North Scotland":65.4,"South Scotland":35.0,"North West England":72.8,"North East England":43.5,"Yorkshire":216.6,"North Wales and Merseyside":143.0,"South Wales":305.5,"West Midlands":187.3,"East Midlands":298.4,"East England":153.5,"South West England":187.5,"South England":237.6,"London":182.5,"South East England":187.9},"16":{"North Scotland":61.8,"South Scotland":35.0,"North West England":76.2,"North East England":44.9,"Yorkshire":225.5,"North Wales and Merseyside":148.4,"South Wales":322.9,"West Midlands":198.3,"East Midlands":316.2,"East England":166.5,"South West England":218.5,"South England":256.6,"London":194.1,"South East England":196.8},"17":{"North Scotland":59.3,"South Scotland":35.0,"North West England":77.3,"North East England":46.0,"Yorkshire":228.8,"North Wales and Merseyside":148.5,"South Wales":334.2,"West Midlands":203.6,"East Midlands":325.5,"East England":174.9,"South West England":243.9,"South England":267.8,"London":200.0,"South East England":203.1},"18":{"North Scotland":60.0,"South Scotland":35.6,"North West England":77.5,"North East England":47.3,"Yorkshire":228.5,"North Wales and Merseyside":149.8,"South Wales":339.1,"West Midlands":206.6,"East Midlands":328.4,"East England":178.2,"South West England":260.0,"South England":272.5,"London":200.3,"South East England":205.5},"19":{"North Scotland":64.8,"South Scotland":36.8,"North West England":76.2,"North East England":47.5,"Yorkshire":225.2,"North Wales and Merseyside":153.1,"South Wales":338.7,"West Midlands":206.0,"East Midlands":324.5,"East England":176.1,"South West England":266.1,"South England":271.8,"London":197.6,"South East England":204.8},"20":{"North Scotland":68.8,"South Scotland":37.6,"North West England":71.8,"North East England":45.5,"Yorkshire":216.8,"North Wales and Merseyside":150.2,"South Wales":331.9,"West Midlands":196.0,"East Midlands":310.1,"East England":167.3,"South West England":261.6,"South England":263.7,"London":189.2,"South East England":201.9},"21":{"North Scotland":67.9,"South Scotland":36.5,"North West England":63.3,"North East England":40.2,"Yorkshire":202.6,"North Wales and Merseyside":135.2,"South Wales":315.9,"West Midlands":173.3,"East Midlands":285.0,"East England":151.3,"South West England":247.1,"South England":244.8,"London":173.8,"South East England":192.0},"22":{"North Scotland":65.4,"South Scotland":34.8,"North West England":53.5,"North East England":34.4,"Yorkshire":188.3,"North Wales and Merseyside":118.4,"South Wales":293.7,"West Midlands":147.7,"East Midlands":257.9,"East England":133.3,"South West England":228.6,"South England":224.0,"London":156.4,"South East England":179.0},"23":{"North Scotland":65.8,"South Scotland":34.6,"North West England":47.8,"North East England":31.0,"Yorkshire":180.8,"North Wales and Merseyside":111.0,"South Wales":277.5,"West Midlands":133.0,"East Midlands":242.6,"East England":123.8,"South West England":217.2,"South England":215.3,"London":149.2,"South East England":171.1}};
+
+const MONTHLY = {"2018-09":{"North Scotland":74.4,"South Scotland":20.6,"North West England":56.0,"North East England":17.5,"Yorkshire":336.2,"North Wales and Merseyside":224.9,"South Wales":313.1,"West Midlands":138.3,"East Midlands":440.2,"East England":135.9,"South West England":98.4,"South England":248.9,"London":207.7,"South East England":170.7},"2018-10":{"North Scotland":128.8,"South Scotland":43.7,"North West England":49.8,"North East England":43.5,"Yorkshire":297.2,"North Wales and Merseyside":275.9,"South Wales":366.7,"West Midlands":202.9,"East Midlands":405.0,"East England":143.4,"South West England":142.8,"South England":297.5,"London":248.5,"South East England":254.5},"2018-11":{"North Scotland":125.4,"South Scotland":46.4,"North West England":43.5,"North East England":42.9,"Yorkshire":339.2,"North Wales and Merseyside":265.7,"South Wales":354.0,"West Midlands":209.8,"East Midlands":499.3,"East England":130.0,"South West England":122.0,"South England":303.6,"London":286.6,"South East England":269.2},"2018-12":{"North Scotland":124.0,"South Scotland":49.6,"North West England":60.9,"North East England":33.7,"Yorkshire":312.5,"North Wales and Merseyside":205.7,"South Wales":365.1,"West Midlands":216.6,"East Midlands":466.4,"East England":137.8,"South West England":111.4,"South England":306.5,"London":269.4,"South East England":250.6},"2019-01":{"North Scotland":160.1,"South Scotland":70.5,"North West England":100.4,"North East England":56.4,"Yorkshire":338.0,"North Wales and Merseyside":265.6,"South Wales":389.9,"West Midlands":295.2,"East Midlands":496.3,"East England":187.1,"South West England":163.4,"South England":324.6,"London":296.5,"South East England":281.3},"2019-02":{"North Scotland":139.3,"South Scotland":60.8,"North West England":78.8,"North East England":35.5,"Yorkshire":302.0,"North Wales and Merseyside":233.9,"South Wales":362.4,"West Midlands":229.7,"East Midlands":400.0,"East England":160.9,"South West England":119.5,"South England":287.7,"London":255.0,"South East England":248.7},"2019-03":{"North Scotland":70.1,"South Scotland":33.0,"North West England":76.2,"North East England":34.4,"Yorkshire":268.6,"North Wales and Merseyside":196.8,"South Wales":329.4,"West Midlands":162.3,"East Midlands":357.7,"East England":124.5,"South West England":121.9,"South England":262.5,"London":224.1,"South East England":222.6},"2019-04":{"North Scotland":116.3,"South Scotland":34.5,"North West England":58.4,"North East England":32.1,"Yorkshire":274.6,"North Wales and Merseyside":212.5,"South Wales":351.4,"West Midlands":177.7,"East Midlands":363.8,"East England":121.0,"South West England":140.1,"South England":264.3,"London":225.1,"South East England":267.9},"2019-05":{"North Scotland":167.7,"South Scotland":43.6,"North West England":64.4,"North East England":30.2,"Yorkshire":253.9,"North Wales and Merseyside":196.1,"South Wales":332.4,"West Midlands":192.5,"East Midlands":337.1,"East England":144.9,"South West England":147.4,"South England":268.9,"London":218.8,"South East England":224.4},"2019-06":{"North Scotland":58.3,"South Scotland":43.9,"North West England":78.6,"North East England":39.6,"Yorkshire":253.9,"North Wales and Merseyside":210.9,"South Wales":313.8,"West Midlands":186.8,"East Midlands":339.7,"East England":182.2,"South West England":200.8,"South England":250.9,"London":209.8,"South East England":227.0},"2019-07":{"North Scotland":71.5,"South Scotland":25.5,"North West England":66.5,"North East England":45.4,"Yorkshire":259.0,"North Wales and Merseyside":195.3,"South Wales":328.6,"West Midlands":175.4,"East Midlands":346.6,"East England":232.3,"South West England":136.8,"South England":256.8,"London":212.0,"South East England":228.8},"2019-08":{"North Scotland":56.5,"South Scotland":25.3,"North West England":50.9,"North East England":26.0,"Yorkshire":232.3,"North Wales and Merseyside":166.2,"South Wales":282.4,"West Midlands":115.1,"East Midlands":309.3,"East England":178.3,"South West England":99.3,"South England":212.4,"London":176.6,"South East England":209.4},"2019-09":{"North Scotland":62.4,"South Scotland":18.8,"North West England":54.4,"North East England":35.4,"Yorkshire":243.5,"North Wales and Merseyside":184.6,"South Wales":311.2,"West Midlands":125.2,"East Midlands":326.6,"East England":131.4,"South West England":80.0,"South England":197.0,"London":165.0,"South East England":197.6},"2019-10":{"North Scotland":109.0,"South Scotland":21.6,"North West England":56.3,"North East England":57.2,"Yorkshire":271.4,"North Wales and Merseyside":283.5,"South Wales":317.7,"West Midlands":146.0,"East Midlands":323.7,"East England":128.0,"South West England":74.7,"South England":235.4,"London":183.5,"South East England":232.7},"2019-11":{"North Scotland":157.2,"South Scotland":29.8,"North West England":58.7,"North East England":70.2,"Yorkshire":269.5,"North Wales and Merseyside":372.2,"South Wales":400.6,"West Midlands":208.2,"East Midlands":367.8,"East England":145.0,"South West England":122.3,"South England":266.2,"London":221.2,"South East England":255.8},"2019-12":{"North Scotland":93.2,"South Scotland":24.6,"North West England":47.7,"North East England":47.8,"Yorkshire":257.0,"North Wales and Merseyside":324.4,"South Wales":404.4,"West Midlands":177.5,"East Midlands":361.1,"East England":112.5,"South West England":109.2,"South England":241.0,"London":200.2,"South East England":232.4},"2020-01":{"North Scotland":71.2,"South Scotland":22.7,"North West England":40.3,"North East England":41.4,"Yorkshire":286.5,"North Wales and Merseyside":405.7,"South Wales":382.2,"West Midlands":164.8,"East Midlands":383.6,"East England":118.4,"South West England":113.3,"South England":236.3,"London":199.7,"South East England":222.1},"2020-02":{"North Scotland":67.0,"South Scotland":24.3,"North West England":38.4,"North East England":35.8,"Yorkshire":268.3,"North Wales and Merseyside":338.7,"South Wales":324.7,"West Midlands":146.3,"East Midlands":328.0,"East England":86.7,"South West England":105.2,"South England":209.0,"London":179.0,"South East England":192.7},"2020-03":{"North Scotland":92.9,"South Scotland":38.3,"North West England":61.3,"North East England":44.8,"Yorkshire":290.1,"North Wales and Merseyside":222.0,"South Wales":282.2,"West Midlands":172.7,"East Midlands":289.7,"East England":104.1,"South West England":186.8,"South England":230.8,"London":203.3,"South East England":206.3},"2020-04":{"North Scotland":73.7,"South Scotland":33.1,"North West England":49.6,"North East England":40.7,"Yorkshire":271.1,"North Wales and Merseyside":135.4,"South Wales":262.4,"West Midlands":141.5,"East Midlands":264.1,"East England":106.8,"South West England":123.0,"South England":214.2,"London":171.8,"South East England":196.1},"2020-05":{"North Scotland":26.3,"South Scotland":40.3,"North West England":53.4,"North East England":42.0,"Yorkshire":224.9,"North Wales and Merseyside":97.7,"South Wales":237.2,"West Midlands":119.6,"East Midlands":236.8,"East England":124.3,"South West England":64.2,"South England":203.0,"London":148.3,"South East England":161.4},"2020-06":{"North Scotland":112.6,"South Scotland":71.6,"North West England":68.7,"North East England":62.9,"Yorkshire":220.4,"North Wales and Merseyside":124.3,"South Wales":277.7,"West Midlands":146.0,"East Midlands":243.1,"East England":165.2,"South West England":194.8,"South England":245.9,"London":186.5,"South East England":192.6},"2020-07":{"North Scotland":114.1,"South Scotland":67.1,"North West England":37.2,"North East England":42.9,"Yorkshire":224.2,"North Wales and Merseyside":115.7,"South Wales":322.0,"West Midlands":145.4,"East Midlands":259.6,"East England":187.0,"South West England":227.5,"South England":240.2,"London":215.3,"South East England":241.8},"2020-08":{"North Scotland":189.9,"South Scotland":99.3,"North West England":68.6,"North East England":70.6,"Yorkshire":261.7,"North Wales and Merseyside":163.7,"South Wales":307.7,"West Midlands":172.0,"East Midlands":285.4,"East England":181.2,"South West England":287.1,"South England":273.7,"London":203.1,"South East England":198.0},"2020-09":{"North Scotland":104.0,"South Scotland":53.2,"North West England":55.9,"North East England":59.6,"Yorkshire":263.2,"North Wales and Merseyside":162.3,"South Wales":328.3,"West Midlands":174.2,"East Midlands":288.2,"East England":180.2,"South West England":279.1,"South England":267.3,"London":207.6,"South East England":215.0},"2020-10":{"North Scotland":44.3,"South Scotland":18.9,"North West England":54.1,"North East England":43.6,"Yorkshire":231.3,"North Wales and Merseyside":108.5,"South Wales":302.3,"West Midlands":151.7,"East Midlands":268.3,"East England":135.7,"South West England":255.1,"South England":250.3,"London":152.8,"South East England":163.6},"2020-11":{"North Scotland":53.8,"South Scotland":21.1,"North West England":59.2,"North East England":49.4,"Yorkshire":248.9,"North Wales and Merseyside":126.0,"South Wales":307.6,"West Midlands":166.0,"East Midlands":291.8,"East England":155.6,"South West England":275.6,"South England":254.2,"London":170.0,"South East England":183.3},"2020-12":{"North Scotland":70.8,"South Scotland":34.2,"North West England":68.2,"North East England":46.5,"Yorkshire":241.6,"North Wales and Merseyside":151.3,"South Wales":316.7,"West Midlands":179.6,"East Midlands":314.4,"East England":166.6,"South West England":287.8,"South England":275.8,"London":177.5,"South East England":180.5},"2021-01":{"North Scotland":127.9,"South Scotland":58.8,"North West England":98.7,"North East England":73.5,"Yorkshire":284.4,"North Wales and Merseyside":150.2,"South Wales":337.8,"West Midlands":240.5,"East Midlands":393.7,"East England":185.5,"South West England":307.7,"South England":319.1,"London":187.7,"South East England":184.2},"2021-02":{"North Scotland":55.0,"South Scotland":33.8,"North West England":62.6,"North East England":54.2,"Yorkshire":248.7,"North Wales and Merseyside":109.4,"South Wales":314.4,"West Midlands":182.5,"East Midlands":329.4,"East England":151.7,"South West England":269.6,"South England":279.3,"London":164.6,"South East England":169.9},"2021-03":{"North Scotland":100.9,"South Scotland":54.8,"North West England":107.9,"North East England":77.7,"Yorkshire":230.0,"North Wales and Merseyside":151.8,"South Wales":318.3,"West Midlands":204.6,"East Midlands":288.2,"East England":157.1,"South West England":242.2,"South England":265.1,"London":165.9,"South East England":165.7},"2021-04":{"North Scotland":113.2,"South Scotland":85.4,"North West England":107.6,"North East England":101.1,"Yorkshire":264.1,"North Wales and Merseyside":168.4,"South Wales":332.9,"West Midlands":247.2,"East Midlands":325.9,"East England":174.5,"South West England":116.8,"South England":284.2,"London":181.4,"South East England":183.1},"2021-05":{"North Scotland":66.3,"South Scotland":57.6,"North West England":111.6,"North East England":112.9,"Yorkshire":248.6,"North Wales and Merseyside":161.8,"South Wales":321.3,"West Midlands":227.8,"East Midlands":294.2,"East England":175.1,"South West England":52.4,"South England":236.9,"London":121.6,"South East England":118.7},"2021-06":{"North Scotland":37.0,"South Scotland":29.4,"North West England":92.3,"North East England":68.1,"Yorkshire":238.5,"North Wales and Merseyside":107.7,"South Wales":326.1,"West Midlands":205.8,"East Midlands":295.6,"East England":153.2,"South West England":123.9,"South England":231.0,"London":96.0,"South East England":86.5},"2021-07":{"North Scotland":167.4,"South Scotland":62.0,"North West England":142.1,"North East England":105.4,"Yorkshire":255.2,"North Wales and Merseyside":177.1,"South Wales":341.0,"West Midlands":286.6,"East Midlands":372.6,"East England":162.9,"South West England":148.8,"South England":190.2,"London":92.8,"South East England":91.4},"2021-08":{"North Scotland":84.8,"South Scotland":25.4,"North West England":131.3,"North East England":80.2,"Yorkshire":229.3,"North Wales and Merseyside":167.8,"South Wales":320.1,"West Midlands":241.9,"East Midlands":308.9,"East England":122.4,"South West England":149.2,"South England":210.1,"London":91.0,"South East England":90.8},"2021-09":{"North Scotland":4.2,"South Scotland":9.3,"North West England":138.3,"North East England":118.4,"Yorkshire":248.1,"North Wales and Merseyside":183.5,"South Wales":338.1,"West Midlands":262.1,"East Midlands":342.7,"East England":150.4,"South West England":234.1,"South England":262.3,"London":138.1,"South East England":136.0},"2021-10":{"North Scotland":2.1,"South Scotland":17.6,"North West England":75.6,"North East England":51.9,"Yorkshire":159.3,"North Wales and Merseyside":85.9,"South Wales":298.7,"West Midlands":167.9,"East Midlands":236.7,"East England":146.3,"South West England":202.6,"South England":229.4,"London":160.8,"South East England":170.2},"2021-11":{"North Scotland":17.7,"South Scotland":24.2,"North West England":67.6,"North East England":53.0,"Yorkshire":176.3,"North Wales and Merseyside":126.9,"South Wales":313.6,"West Midlands":183.4,"East Midlands":299.3,"East England":197.2,"South West England":196.0,"South England":267.5,"London":214.3,"South East England":229.9},"2021-12":{"North Scotland":52.7,"South Scotland":42.1,"North West England":73.6,"North East England":65.2,"Yorkshire":186.0,"North Wales and Merseyside":142.3,"South Wales":322.0,"West Midlands":210.5,"East Midlands":322.1,"East England":197.1,"South West England":201.1,"South England":294.4,"London":208.5,"South East England":219.3},"2022-01":{"North Scotland":2.8,"South Scotland":30.0,"North West England":64.8,"North East England":38.6,"Yorkshire":168.3,"North Wales and Merseyside":129.2,"South Wales":322.2,"West Midlands":202.2,"East Midlands":311.5,"East England":204.8,"South West England":184.2,"South England":269.9,"London":221.5,"South East England":235.2},"2022-02":{"North Scotland":2.0,"South Scotland":11.3,"North West England":44.7,"North East England":15.1,"Yorkshire":104.3,"North Wales and Merseyside":58.0,"South Wales":262.7,"West Midlands":131.4,"East Midlands":273.1,"East England":123.9,"South West England":108.1,"South England":218.7,"London":131.9,"South East England":131.2},"2022-03":{"North Scotland":108.9,"South Scotland":56.9,"North West England":78.6,"North East England":20.8,"Yorkshire":183.5,"North Wales and Merseyside":111.1,"South Wales":325.6,"West Midlands":210.4,"East Midlands":330.0,"East England":201.2,"South West England":180.6,"South England":257.9,"London":200.1,"South East England":181.8},"2022-04":{"North Scotland":102.5,"South Scotland":60.7,"North West England":90.5,"North East England":31.9,"Yorkshire":190.2,"North Wales and Merseyside":121.8,"South Wales":320.2,"West Midlands":214.6,"East Midlands":289.2,"East England":168.3,"South West England":136.4,"South England":268.1,"London":193.0,"South East England":193.4},"2022-05":{"North Scotland":89.2,"South Scotland":56.6,"North West England":62.1,"North East England":29.8,"Yorkshire":202.3,"North Wales and Merseyside":125.2,"South Wales":331.5,"West Midlands":179.0,"East Midlands":263.0,"East England":186.5,"South West England":165.1,"South England":268.1,"London":224.5,"South East England":256.1},"2022-06":{"North Scotland":129.0,"South Scotland":79.9,"North West England":74.1,"North East England":33.1,"Yorkshire":191.4,"North Wales and Merseyside":131.3,"South Wales":335.4,"West Midlands":193.1,"East Midlands":271.8,"East England":165.4,"South West England":118.2,"South England":253.6,"London":205.8,"South East England":232.7},"2022-07":{"North Scotland":147.2,"South Scotland":82.5,"North West England":87.4,"North East England":42.9,"Yorkshire":222.2,"North Wales and Merseyside":118.7,"South Wales":350.2,"West Midlands":209.3,"East Midlands":326.6,"East England":217.2,"South West England":146.4,"South England":280.4,"London":233.9,"South East England":247.4},"2022-08":{"North Scotland":180.0,"South Scotland":104.6,"North West England":98.2,"North East England":64.1,"Yorkshire":244.8,"North Wales and Merseyside":181.3,"South Wales":338.6,"West Midlands":219.5,"East Midlands":315.2,"East England":195.6,"South West England":296.6,"South England":293.2,"London":232.3,"South East England":256.9},"2022-09":{"North Scotland":67.6,"South Scotland":45.1,"North West England":92.0,"North East England":64.8,"Yorkshire":212.7,"North Wales and Merseyside":157.3,"South Wales":352.6,"West Midlands":233.4,"East Midlands":341.3,"East England":181.3,"South West England":314.4,"South England":309.0,"London":228.9,"South East England":253.7},"2022-10":{"North Scotland":55.3,"South Scotland":34.7,"North West England":53.8,"North East England":25.7,"Yorkshire":168.3,"North Wales and Merseyside":91.8,"South Wales":320.0,"West Midlands":140.8,"East Midlands":235.5,"East England":120.4,"South West England":279.1,"South England":247.0,"London":173.3,"South East England":226.1},"2022-11":{"North Scotland":59.9,"South Scotland":46.6,"North West England":59.0,"North East England":19.7,"Yorkshire":176.7,"North Wales and Merseyside":97.0,"South Wales":308.6,"West Midlands":146.4,"East Midlands":248.4,"East England":145.5,"South West England":329.7,"South England":262.9,"London":186.5,"South East England":225.0},"2022-12":{"North Scotland":63.7,"South Scotland":48.6,"North West England":61.4,"North East England":37.1,"Yorkshire":190.0,"North Wales and Merseyside":133.2,"South Wales":294.5,"West Midlands":171.5,"East Midlands":308.3,"East England":174.3,"South West England":257.8,"South England":261.8,"London":186.9,"South East England":200.2},"2023-01":{"North Scotland":24.6,"South Scotland":30.9,"North West England":45.2,"North East England":10.9,"Yorkshire":165.1,"North Wales and Merseyside":72.0,"South Wales":260.6,"West Midlands":127.6,"East Midlands":262.9,"East England":150.4,"South West England":235.1,"South England":216.8,"London":161.2,"South East England":174.7},"2023-02":{"North Scotland":26.5,"South Scotland":29.7,"North West England":57.4,"North East England":13.4,"Yorkshire":178.2,"North Wales and Merseyside":73.9,"South Wales":292.6,"West Midlands":158.6,"East Midlands":278.8,"East England":191.3,"South West England":253.1,"South England":236.9,"London":193.1,"South East England":201.2},"2023-03":{"North Scotland":67.4,"South Scotland":39.9,"North West England":51.8,"North East England":8.3,"Yorkshire":172.1,"North Wales and Merseyside":77.5,"South Wales":285.7,"West Midlands":154.0,"East Midlands":236.3,"East England":195.0,"South West England":281.8,"South England":229.0,"London":174.6,"South East England":162.8},"2023-04":{"North Scotland":42.5,"South Scotland":34.1,"North West England":48.5,"North East England":11.1,"Yorkshire":165.4,"North Wales and Merseyside":57.6,"South Wales":324.6,"West Midlands":153.4,"East Midlands":233.5,"East England":230.3,"South West England":284.3,"South England":216.3,"London":188.0,"South East England":170.1},"2023-05":{"North Scotland":44.0,"South Scotland":23.0,"North West England":49.3,"North East England":7.4,"Yorkshire":207.0,"North Wales and Merseyside":64.8,"South Wales":338.3,"West Midlands":178.6,"East Midlands":249.6,"East England":188.1,"South West England":225.0,"South England":165.1,"London":141.7,"South East England":136.7},"2023-06":{"North Scotland":5.2,"South Scotland":22.9,"North West England":70.8,"North East England":8.8,"Yorkshire":208.6,"North Wales and Merseyside":93.8,"South Wales":319.6,"West Midlands":206.6,"East Midlands":282.0,"East England":153.1,"South West England":240.0,"South England":221.4,"London":169.4,"South East England":178.9},"2023-07":{"North Scotland":3.1,"South Scotland":20.6,"North West England":64.7,"North East England":6.7,"Yorkshire":170.8,"North Wales and Merseyside":74.0,"South Wales":250.0,"West Midlands":146.9,"East Midlands":236.1,"East England":156.9,"South West England":216.4,"South England":172.0,"London":162.7,"South East England":181.4},"2023-08":{"North Scotland":8.9,"South Scotland":25.4,"North West England":75.9,"North East England":13.0,"Yorkshire":198.4,"North Wales and Merseyside":95.0,"South Wales":294.7,"West Midlands":170.7,"East Midlands":271.6,"East England":142.8,"South West England":241.3,"South England":203.2,"London":171.0,"South East England":204.0},"2023-09":{"North Scotland":76.7,"South Scotland":33.6,"North West England":43.4,"North East England":4.6,"Yorkshire":186.0,"North Wales and Merseyside":84.2,"South Wales":257.3,"West Midlands":126.6,"East Midlands":282.8,"East England":151.5,"South West England":247.9,"South England":219.5,"London":185.9,"South East England":219.5},"2023-10":{"North Scotland":28.0,"South Scotland":26.5,"North West England":28.2,"North East England":35.0,"Yorkshire":151.3,"North Wales and Merseyside":74.8,"South Wales":238.7,"West Midlands":136.5,"East Midlands":269.4,"East England":118.6,"South West England":278.4,"South England":215.7,"London":148.1,"South East England":169.9},"2023-11":{"North Scotland":44.2,"South Scotland":37.7,"North West England":65.7,"North East England":37.0,"Yorkshire":162.4,"North Wales and Merseyside":93.3,"South Wales":266.1,"West Midlands":197.6,"East Midlands":304.9,"East England":128.5,"South West England":291.6,"South England":243.0,"London":148.4,"South East England":164.3},"2023-12":{"North Scotland":47.3,"South Scotland":31.3,"North West England":40.7,"North East England":33.3,"Yorkshire":133.1,"North Wales and Merseyside":73.7,"South Wales":215.8,"West Midlands":120.0,"East Midlands":216.3,"East England":99.3,"South West England":240.9,"South England":201.2,"London":114.0,"South East England":128.2},"2024-01":{"North Scotland":73.2,"South Scotland":47.4,"North West England":93.5,"North East England":60.8,"Yorkshire":173.4,"North Wales and Merseyside":135.4,"South Wales":304.0,"West Midlands":208.4,"East Midlands":295.0,"East England":139.9,"South West England":318.9,"South England":280.3,"London":168.6,"South East England":190.0},"2024-02":{"North Scotland":11.1,"South Scotland":20.4,"North West England":42.3,"North East England":32.3,"Yorkshire":158.1,"North Wales and Merseyside":83.0,"South Wales":273.4,"West Midlands":142.3,"East Midlands":232.7,"East England":121.5,"South West England":276.3,"South England":228.8,"London":137.1,"South East England":147.8},"2024-03":{"North Scotland":0.9,"South Scotland":13.9,"North West England":43.0,"North East England":19.8,"Yorkshire":143.1,"North Wales and Merseyside":70.6,"South Wales":264.8,"West Midlands":147.0,"East Midlands":241.8,"East England":115.6,"South West England":225.5,"South England":188.8,"London":121.7,"South East England":124.1},"2024-04":{"North Scotland":4.2,"South Scotland":13.0,"North West England":27.0,"North East England":14.0,"Yorkshire":114.0,"North Wales and Merseyside":36.4,"South Wales":211.6,"West Midlands":91.9,"East Midlands":176.3,"East England":69.4,"South West England":217.4,"South England":129.6,"London":92.6,"South East England":107.1},"2024-05":{"North Scotland":12.4,"South Scotland":29.0,"North West England":60.0,"North East England":12.3,"Yorkshire":158.9,"North Wales and Merseyside":65.4,"South Wales":259.8,"West Midlands":127.4,"East Midlands":215.9,"East England":111.1,"South West England":232.7,"South England":163.3,"London":128.4,"South East England":130.3},"2024-06":{"North Scotland":2.5,"South Scotland":18.6,"North West England":37.6,"North East England":13.7,"Yorkshire":134.0,"North Wales and Merseyside":42.5,"South Wales":194.8,"West Midlands":83.1,"East Midlands":171.1,"East England":90.3,"South West England":200.0,"South England":130.4,"London":99.1,"South East England":103.1},"2024-07":{"North Scotland":77.4,"South Scotland":46.8,"North West England":50.2,"North East England":13.5,"Yorkshire":140.9,"North Wales and Merseyside":52.1,"South Wales":228.2,"West Midlands":109.0,"East Midlands":188.6,"East England":74.9,"South West England":222.3,"South England":150.9,"London":109.3,"South East England":120.4},"2024-08":{"North Scotland":16.8,"South Scotland":17.1,"North West England":27.4,"North East England":12.4,"Yorkshire":113.5,"North Wales and Merseyside":35.6,"South Wales":192.8,"West Midlands":59.7,"East Midlands":124.0,"East England":54.2,"South West England":201.8,"South England":137.8,"London":91.8,"South East England":108.0},"2024-09":{"North Scotland":25.3,"South Scotland":14.5,"North West England":47.1,"North East England":15.7,"Yorkshire":135.9,"North Wales and Merseyside":89.3,"South Wales":260.0,"West Midlands":122.9,"East Midlands":190.2,"East England":92.7,"South West England":246.1,"South England":201.8,"London":110.0,"South East England":118.2},"2024-10":{"North Scotland":33.0,"South Scotland":15.9,"North West England":49.0,"North East England":30.2,"Yorkshire":144.1,"North Wales and Merseyside":84.3,"South Wales":303.6,"West Midlands":135.5,"East Midlands":197.2,"East England":150.4,"South West England":257.3,"South England":215.7,"London":135.1,"South East England":132.0},"2024-11":{"North Scotland":79.7,"South Scotland":36.2,"North West England":62.5,"North East England":19.8,"Yorkshire":172.3,"North Wales and Merseyside":137.0,"South Wales":331.9,"West Midlands":169.9,"East Midlands":228.6,"East England":201.5,"South West England":283.5,"South England":239.1,"London":185.4,"South East England":188.5},"2024-12":{"North Scotland":33.9,"South Scotland":28.1,"North West England":50.9,"North East England":22.5,"Yorkshire":137.4,"North Wales and Merseyside":103.6,"South Wales":263.7,"West Midlands":120.3,"East Midlands":177.7,"East England":96.3,"South West England":236.3,"South England":190.2,"London":139.6,"South East England":173.4},"2025-01":{"North Scotland":105.6,"South Scotland":47.9,"North West England":69.3,"North East England":21.1,"Yorkshire":166.6,"North Wales and Merseyside":149.2,"South Wales":309.8,"West Midlands":175.2,"East Midlands":236.2,"East England":140.9,"South West England":288.0,"South England":224.6,"London":185.4,"South East England":215.5},"2025-02":{"North Scotland":51.3,"South Scotland":27.2,"North West England":62.9,"North East England":22.6,"Yorkshire":141.3,"North Wales and Merseyside":98.1,"South Wales":265.4,"West Midlands":129.9,"East Midlands":202.3,"East England":143.7,"South West England":259.0,"South England":233.7,"London":174.2,"South East England":198.7},"2025-03":{"North Scotland":79.7,"South Scotland":33.8,"North West England":65.2,"North East England":28.2,"Yorkshire":160.7,"North Wales and Merseyside":117.0,"South Wales":292.2,"West Midlands":164.1,"East Midlands":219.0,"East England":150.0,"South West England":224.1,"South England":183.2,"London":158.7,"South East England":169.3},"2025-04":{"North Scotland":58.9,"South Scotland":18.9,"North West England":53.8,"North East England":19.4,"Yorkshire":154.7,"North Wales and Merseyside":85.7,"South Wales":253.2,"West Midlands":139.9,"East Midlands":201.2,"East England":132.3,"South West England":182.6,"South England":181.6,"London":155.9,"South East England":167.4},"2025-05":{"North Scotland":36.2,"South Scotland":12.0,"North West England":45.9,"North East England":17.5,"Yorkshire":108.7,"North Wales and Merseyside":60.1,"South Wales":224.0,"West Midlands":115.9,"East Midlands":159.3,"East England":85.9,"South West England":170.7,"South England":154.0,"London":111.5,"South East England":127.8},"2025-06":{"North Scotland":4.0,"South Scotland":3.4,"North West England":24.6,"North East England":17.7,"Yorkshire":120.5,"North Wales and Merseyside":50.8,"South Wales":194.5,"West Midlands":76.3,"East Midlands":144.3,"East England":96.7,"South West England":180.3,"South England":155.4,"London":118.0,"South East England":136.1},"2025-07":{"North Scotland":57.3,"South Scotland":18.5,"North West England":29.6,"North East England":25.2,"Yorkshire":164.9,"North Wales and Merseyside":68.7,"South Wales":258.3,"West Midlands":124.7,"East Midlands":214.3,"East England":128.6,"South West England":192.2,"South England":165.7,"London":123.5,"South East England":118.8},"2025-08":{"North Scotland":39.8,"South Scotland":26.4,"North West England":53.7,"North East England":41.2,"Yorkshire":155.5,"North Wales and Merseyside":105.1,"South Wales":257.1,"West Midlands":142.9,"East Midlands":203.7,"East England":93.5,"South West England":207.9,"South England":167.3,"London":110.9,"South East England":118.8},"2025-09":{"North Scotland":1.3,"South Scotland":5.3,"North West England":54.2,"North East England":36.2,"Yorkshire":135.9,"North Wales and Merseyside":70.3,"South Wales":221.9,"West Midlands":116.9,"East Midlands":177.7,"East England":62.8,"South West England":211.6,"South England":179.4,"London":117.1,"South East England":146.3},"2025-10":{"North Scotland":33.3,"South Scotland":9.3,"North West England":73.4,"North East England":28.0,"Yorkshire":148.0,"North Wales and Merseyside":104.8,"South Wales":235.6,"West Midlands":137.8,"East Midlands":200.6,"East England":112.8,"South West England":223.6,"South England":209.3,"London":158.1,"South East England":194.0},"2025-11":{"North Scotland":51.3,"South Scotland":20.5,"North West England":54.5,"North East England":42.1,"Yorkshire":142.2,"North Wales and Merseyside":77.9,"South Wales":235.2,"West Midlands":119.5,"East Midlands":187.9,"East England":98.2,"South West England":261.2,"South England":228.7,"London":124.3,"South East England":140.3},"2025-12":{"North Scotland":9.8,"South Scotland":10.2,"North West England":46.2,"North East England":32.3,"Yorkshire":132.4,"North Wales and Merseyside":71.4,"South Wales":228.6,"West Midlands":114.7,"East Midlands":185.0,"East England":104.9,"South West England":258.4,"South England":185.7,"London":131.6,"South East England":153.8},"2026-01":{"North Scotland":55.2,"South Scotland":21.9,"North West England":62.0,"North East England":48.7,"Yorkshire":154.1,"North Wales and Merseyside":94.4,"South Wales":267.5,"West Midlands":138.7,"East Midlands":206.4,"East England":137.9,"South West England":264.5,"South England":210.4,"London":160.9,"South East England":182.5},"2026-02":{"North Scotland":3.7,"South Scotland":12.3,"North West England":47.2,"North East England":61.2,"Yorkshire":146.0,"North Wales and Merseyside":75.5,"South Wales":270.1,"West Midlands":147.5,"East Midlands":216.1,"East England":125.0,"South West England":281.3,"South England":217.4,"London":145.4,"South East England":158.2},"2026-03":{"North Scotland":2.6,"South Scotland":10.3,"North West England":45.6,"North East England":24.2,"Yorkshire":128.5,"North Wales and Merseyside":74.0,"South Wales":251.1,"West Midlands":130.5,"East Midlands":201.0,"East England":128.5,"South West England":264.9,"South England":171.4,"London":141.6,"South East England":153.0}};
+
+// 48h forecast (generated, starting at hour 9 March 19)
+const FORECAST = {"North Scotland":[40,40,41,41,41,41,39,37,35,35,38,41,43,43,43,41,39,37,36,38,40,40,39,38,38,38,39,39,39,39,37,35,33,33,36,39,41,41,41,39,37,35,34,36,38,38,37,36],"South Scotland":[56,55,54,53,52,52,50,48,46,45,47,51,54,54,54,51,49,47,45,47,50,50,49,47,47,47,47,48,48,48,46,44,42,41,43,46,49,49,49,47,45,43,42,43,46,46,45,44],"North West England":[145,142,139,136,134,133,129,124,120,118,123,133,139,139,139,133,127,122,118,122,129,129,126,122,122,122,123,124,124,124,119,114,110,108,113,122,128,128,128,122,117,112,109,113,119,119,117,113],"North East England":[85,84,83,81,80,79,77,74,72,70,73,79,83,83,83,79,76,73,70,72,77,77,75,73,72,72,73,73,74,74,71,68,65,64,67,73,77,77,77,73,70,67,65,68,72,72,70,68],"Yorkshire":[208,205,201,197,194,193,188,180,175,172,179,193,203,203,202,193,184,177,171,177,188,188,183,178,177,177,178,180,180,179,172,165,159,157,164,177,186,186,185,177,169,162,158,164,173,173,169,164],"North Wales and Merseyside":[164,162,158,155,153,152,148,142,138,135,141,152,159,160,159,152,145,140,135,139,148,148,144,140,139,140,140,142,142,141,136,130,126,124,129,140,147,147,146,140,133,128,125,129,137,136,133,129],"South Wales":[322,317,310,304,300,298,290,279,271,266,277,299,314,315,313,299,285,274,266,274,291,290,283,275,274,274,276,279,279,277,267,256,247,243,254,274,287,288,287,274,262,252,245,254,268,267,261,253],"West Midlands":[245,241,236,231,228,226,220,212,205,202,210,227,239,239,238,227,217,208,202,208,221,221,215,209,208,209,210,212,212,211,203,195,188,185,193,209,219,219,218,209,199,192,186,193,204,204,199,193],"East Midlands":[276,272,266,261,257,255,249,239,232,228,237,256,270,270,269,256,245,235,228,235,250,249,243,236,235,235,237,239,239,238,229,219,212,208,218,235,247,247,246,235,224,216,210,218,230,229,224,217],"East England":[119,117,115,112,110,110,107,103,100,98,102,110,116,116,116,110,105,101,98,101,107,107,105,102,101,101,102,103,103,102,99,95,91,90,94,101,106,107,106,101,97,93,90,94,99,99,97,94],"South West England":[124,122,120,117,115,115,112,107,104,102,106,115,121,121,120,115,109,105,102,105,112,111,109,106,105,105,106,107,107,107,103,99,95,93,97,105,110,110,110,105,100,96,94,97,103,102,100,97],"South England":[169,167,163,160,157,156,152,146,142,139,145,157,165,165,164,157,149,144,139,143,152,152,148,144,143,143,144,145,145,145,140,134,129,127,132,143,150,150,149,142,136,131,127,132,140,139,136,132],"London":[176,174,170,166,164,163,158,152,148,145,151,163,172,172,171,163,156,150,145,150,159,159,155,151,150,150,151,152,153,152,146,140,135,133,139,150,158,158,157,150,143,138,134,139,147,146,143,139],"South East England":[180,177,174,170,167,166,162,155,151,148,154,167,175,176,175,167,159,153,148,153,163,162,158,154,153,153,154,156,156,155,149,143,138,136,142,153,161,161,160,153,146,140,136,141,150,149,146,141]};
+
+// ══════════════════════════════════════════════════════════
+// COLOUR UTILITIES
+// ══════════════════════════════════════════════════════════
+function ci(v, a=1) {
+  const t = Math.max(0, Math.min(v/400, 1));
+  let r,g,b;
+  if(t<0.5){const s=t*2; r=Math.round(s*217); g=Math.round(163-s*7); b=Math.round(74-s*62);}
+  else{const s=(t-0.5)*2; r=Math.round(217+s*3); g=Math.round(156-s*135); b=Math.round(12-s*12);}
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ══════════════════════════════════════════════════════════
+// CHART REGISTRY
+// ══════════════════════════════════════════════════════════
+const CH = {};
+function kc(id){if(CH[id]){CH[id].destroy();delete CH[id];}}
+
+// ══════════════════════════════════════════════════════════
+// NOW PANEL
+// ══════════════════════════════════════════════════════════
+function buildNow(){
+  // Stat chips
+  const vals = RG.map(r=>NOW[r]);
+  const mn=Math.min(...vals), mx=Math.max(...vals);
+  const gbAvg=Math.round(vals.reduce((a,b)=>a+b)/vals.length);
+  const mnR=RG.find(r=>NOW[r]===mn), mxR=RG.find(r=>NOW[r]===mx);
+  document.getElementById('now-stats').innerHTML=`
+    <div class="stat-cell c-b"><div class="stat-lbl">GB average now</div><div class="stat-val" style="color:${ci(gbAvg)}">${gbAvg}</div><div class="stat-sub">gCO₂/kWh · all regions</div></div>
+    <div class="stat-cell c-g"><div class="stat-lbl">Cleanest region</div><div class="stat-val" style="color:var(--low)">${Math.round(mn)}</div><div class="stat-sub">${mnR}</div></div>
+    <div class="stat-cell c-r"><div class="stat-lbl">Highest intensity</div><div class="stat-val" style="color:var(--high)">${Math.round(mx)}</div><div class="stat-sub">${mxR}</div></div>
+    <div class="stat-cell c-a"><div class="stat-lbl">Regional spread</div><div class="stat-val" style="color:var(--mid)">${Math.round(mx-mn)}</div><div class="stat-sub">gCO₂/kWh gap, best to worst</div></div>
+  `;
+
+  // GB fuel bar (weighted average)
+  const gbMix = {};
+  FUELS.forEach(f=>{ gbMix[f]=Math.round(RG.reduce((s,r)=>s+(CUR_MIX[r][f]||0),0)/RG.length); });
+  const total = FUELS.reduce((s,f)=>s+gbMix[f],0);
+  document.getElementById('gb-fuel-bar').innerHTML = FUELS.map(f=>{
+    const pct = (gbMix[f]/total*100).toFixed(1);
+    if(gbMix[f]<1) return '';
+    return `<div class="fuel-seg" style="width:${pct}%;background:${FUEL_COLORS[f]}" data-tip="${FUEL_LABELS[f]}: ${gbMix[f]}%"></div>`;
+  }).join('');
+  document.getElementById('gb-fuel-legend').innerHTML = FUELS.filter(f=>gbMix[f]>=1).map(f=>
+    `<div class="fl-item"><div class="fl-dot" style="background:${FUEL_COLORS[f]}"></div>${FUEL_LABELS[f]} ${gbMix[f]}%</div>`
+  ).join('');
+
+  // Renewable/fossil gauge
+  const renew = (gbMix.wind||0)+(gbMix.solar||0)+(gbMix.hydro||0)+(gbMix.nuclear||0);
+  const fossil = (gbMix.gas||0)+(gbMix.coal||0);
+  const other  = 100-renew-fossil;
+  const svgW=240, svgH=130;
+  const cx=svgW/2, cy=svgH-10, rx=100;
+  function arc(pct, startDeg, color){
+    const s=startDeg*Math.PI/180, e=(startDeg+pct*1.8)*Math.PI/180;
+    const x1=cx+rx*Math.cos(Math.PI+s), y1=cy+rx*Math.sin(Math.PI+s);
+    const x2=cx+rx*Math.cos(Math.PI+e), y2=cy+rx*Math.sin(Math.PI+e);
+    const large=pct*1.8>180?1:0;
+    return `<path d="M ${x1} ${y1} A ${rx} ${rx} 0 ${large} 1 ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="18" stroke-linecap="butt"/>`;
+  }
+  const renewPct=renew/100*100, fossilPct=fossil/100*100;
+  document.getElementById('renew-gauge').innerHTML=`
+    <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin:0 auto">
+      <path d="M ${cx-rx} ${cy} A ${rx} ${rx} 0 0 1 ${cx+rx} ${cy}" fill="none" stroke="#f3f4f6" stroke-width="18" stroke-linecap="butt"/>
+      ${arc(renew,'0','#22c55e')}
+      ${arc(fossil,renew*1.8,'#f97316')}
+      ${arc(100-renew-fossil,(renew+fossil)*1.8,'#94a3b8')}
+      <text x="${cx}" y="${cy-18}" text-anchor="middle" font-family="Barlow Condensed" font-size="28" font-weight="700" fill="#1a1a1a">${renew}%</text>
+      <text x="${cx}" y="${cy-2}" text-anchor="middle" font-family="Barlow" font-size="10" fill="#6b6b6b">low/zero carbon</text>
+      <text x="${cx-rx-8}" y="${cy+14}" text-anchor="end" font-family="Barlow" font-size="9" fill="#6b6b6b">Fossil ${fossil}%</text>
+      <text x="${cx+rx+8}" y="${cy+14}" text-anchor="start" font-family="Barlow" font-size="9" fill="#6b6b6b">Clean ${renew}%</text>
+    </svg>
+  `;
+
+  renderNowTable();
+}
+
+let sk='now', sd=1;
+function srt(k){
+  if(sk===k)sd*=-1;else{sk=k;sd=1;}
+  document.querySelectorAll('table.dt th').forEach(t=>t.className='');
+  const th=document.getElementById('th-'+k); if(th) th.className=sd===1?'sd':'sa';
+  renderNowTable();
+}
+
+function renderNowTable(){
+  const rows=RG.map(r=>({
+    name:r, now:NOW[r], d7:D7[r], d30:D30[r], all:RAVG[r],
+    vs:NOW[r]-RAVG[r],
+    drop:Math.round(((BASE[r]-RAVG[r])/BASE[r])*100)
+  }));
+  rows.sort((a,b)=>sk==='name'?sd*(a.name.localeCompare(b.name)):sd*(a[sk]-b[sk]));
+  const mx=Math.max(...rows.map(r=>r.now));
+  document.getElementById('now-tbody').innerHTML=rows.map(row=>{
+    const bw=Math.round((row.now/mx)*44);
+    const vc=row.vs<=-20?'dp':row.vs>=20?'dn':'dm';
+    const vs=row.vs>0?'+':'';
+    const badge=row.now<row.all*0.85?'<span class="bdg bdg-g">Cleaner</span>':row.now>row.all*1.15?'<span class="bdg bdg-r">Higher</span>':'<span class="bdg bdg-a">Typical</span>';
+    // mini fuel mix bar
+    const mix=CUR_MIX[row.name];
+    const fbar=FUELS.map(f=>`<div style="flex:${mix[f]||0};background:${FUEL_COLORS[f]}"></div>`).join('');
+    return `<tr id="tr-${row.name.replace(/ /g,'_')}" onclick="hlR('${row.name}')">
+      <td><span class="dot" style="background:${RCOL[row.name]}"></span>${row.name}</td>
+      <td class="tn civ" style="color:${ci(row.now)}">${Math.round(row.now)}<span class="mbar" style="width:${bw}px;background:${ci(row.now,.3)}"></span></td>
+      <td class="tn">${Math.round(row.d7)}</td>
+      <td class="tn">${Math.round(row.d30)}</td>
+      <td class="tn" style="color:var(--ink3)">${Math.round(row.all)}</td>
+      <td class="tn ${vc}">${vs}${Math.round(row.vs)}</td>
+      <td class="tn" style="color:var(--low)">↓ ${row.drop}%</td>
+      <td><div class="fmix-bar">${fbar}</div></td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+function hlR(r){ openRegion(r); }
+
+let activeRegion = null;
+
+function openRegion(r){
+  activeRegion = r;
+  var rtab = document.getElementById('tab-region');
+  rtab.style.display = '';
+  rtab.textContent = 'Region';
+  go('region');
+}
+
+function buildRegion(){
+  if(!activeRegion) return;
+  var r = activeRegion;
+  var now = NOW[r], avg = RAVG[r], base = BASE[r];
+  var drop = Math.round(((base-avg)/base)*100);
+  var mix = CUR_MIX[r];
+
+  document.getElementById('rgn-val').textContent = now;
+  document.getElementById('rgn-val').style.color = ci(now);
+  var statusTxt = now < avg*0.85 ? 'Cleaner than usual' : now > avg*1.15 ? 'Higher than usual' : 'Typical';
+  document.getElementById('rgn-meta').textContent = now + ' gCO\u2082/kWh \u00b7 ' + statusTxt + ' \u00b7 all-time avg ' + Math.round(avg);
+
+  // Populate selector (once), then sync to current region
+  var sel = document.getElementById('rgn-selector');
+  if(sel.options.length === 0){
+    RG.forEach(function(rg){ var o = document.createElement('option'); o.value = o.text = rg; sel.appendChild(o); });
+  }
+  sel.value = r;
+
+  document.getElementById('rgn-fbar').innerHTML = FUELS.map(function(f){ return '<div style="flex:' + (mix[f]||0) + ';background:' + FUEL_COLORS[f] + '"></div>'; }).join('');
+  document.getElementById('rgn-fleg').innerHTML = FUELS.filter(function(f){ return mix[f]>=3; }).map(function(f){
+    return '<div class="fl-item"><div class="fl-dot" style="background:' + FUEL_COLORS[f] + '"></div>' + FUEL_LABELS[f] + ' ' + mix[f] + '%</div>';
+  }).join('');
+
+  var renew2 = (mix.wind||0)+(mix.solar||0)+(mix.hydro||0)+(mix.nuclear||0);
+  document.getElementById('rgn-stats').innerHTML =
+    '<div class="stat-cell c-b"><div class="stat-lbl">Now</div><div class="stat-val" style="color:'+ci(now)+'">'+now+'</div><div class="stat-sub">gCO₂/kWh</div></div>' +
+    '<div class="stat-cell c-g"><div class="stat-lbl">7-day avg</div><div class="stat-val">'+Math.round(D7[r])+'</div><div class="stat-sub">gCO₂/kWh</div></div>' +
+    '<div class="stat-cell"><div class="stat-lbl">All-time avg</div><div class="stat-val">'+Math.round(avg)+'</div><div class="stat-sub">since 2018</div></div>' +
+    '<div class="stat-cell c-g"><div class="stat-lbl">Reduction since 2018</div><div class="stat-val" style="color:var(--low)">↓'+drop+'%</div><div class="stat-sub">'+Math.round(base)+' → '+Math.round(avg)+'</div></div>' +
+    '<div class="stat-cell c-b"><div class="stat-lbl">Clean energy now</div><div class="stat-val" style="color:var(--acc)">'+renew2+'%</div><div class="stat-sub">wind+solar+nuclear+hydro</div></div>';
+
+  // 48h forecast chart — use live data if available, otherwise fetch
+  kc('rgn-fc');
+  var fVals = LIVE_FORECAST[r] ? LIVE_FORECAST[r].map(function(p){return p.intensity||0;}) : FORECAST[r];
+  if(!LIVE_FORECAST[r]){ fetchRegionForecast(r, function(pts){ if(pts) buildRegion(); }); }
+  var startH = 9;
+  var fcLabels = Array.from({length:48}, function(_,i){
+    var h=(startH+i)%24;
+    var day = i<(24-startH)?'Today': i<(48-startH)?'Tmrw':'Wed';
+    return (i===0||(startH+i)%24===0) ? day+' '+String(h).padStart(2,'0')+':00' : (startH+i)%6===0 ? String(h).padStart(2,'0')+':00' : '';
+  });
+  var bestIdx = fVals.indexOf(Math.min.apply(null,fVals));
+  var worstIdx = fVals.indexOf(Math.max.apply(null,fVals));
+  var ctx1 = document.getElementById('rgn-fc-chart').getContext('2d');
+  CH['rgn-fc'] = new Chart(ctx1, {
+    type:'line',
+    data:{labels:fcLabels, datasets:[{
+      label:'gCO₂/kWh', data:fVals,
+      borderColor:RCOL[r], backgroundColor:fVals.map(function(v){return ci(v,.07);}),
+      borderWidth:2,
+      pointRadius:fVals.map(function(_,i){return i===bestIdx||i===worstIdx?5:0;}),
+      pointBackgroundColor:fVals.map(function(_,i){return i===bestIdx?'#16a34a':i===worstIdx?'#dc2626':'transparent';}),
+      tension:.4, fill:true
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b',callbacks:{label:function(c){return Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
+      scales:{x:{ticks:{color:'#6b6b6b',font:{size:9},maxRotation:0},grid:{color:'#f0ede6'}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
+    }
+  });
+  var bestH2=(startH+bestIdx)%24, worstH2=(startH+worstIdx)%24;
+  var bestDay = bestIdx<(24-startH)?'today':'tomorrow';
+  var worstDay = worstIdx<(24-startH)?'today':'tomorrow';
+  document.getElementById('rgn-fc-tip').innerHTML =
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+    '<div class="best-window" style="flex:1;margin:0"><div class="bw-icon">✅</div><div><div class="bw-title">Best: '+String(bestH2).padStart(2,'0')+':00 '+bestDay+'</div><div class="bw-body">'+fVals[bestIdx]+' gCO₂/kWh &middot; '+(fVals[worstIdx]-fVals[bestIdx])+' gCO₂/kWh saving vs peak</div></div></div>' +
+    '<div class="bw-warning" style="flex:1;margin:0"><div class="bw-icon">⚠️</div><div><div class="bw-title" style="color:var(--mid)">Peak: '+String(worstH2).padStart(2,'0')+':00 '+worstDay+'</div><div class="bw-body">'+fVals[worstIdx]+' gCO₂/kWh &middot; avoid intensive workloads</div></div></div>' +
+    '</div>';
+
+  // Hourly bar chart
+  kc('rgn-sched');
+  var hrs = Array.from({length:24}, function(_,i){return i;});
+  var hAvg = hrs.map(function(h){return HOURLY[h]?.[r]??0;});
+  var ctx2 = document.getElementById('rgn-sched-chart').getContext('2d');
+  CH['rgn-sched'] = new Chart(ctx2, {
+    type:'bar',
+    data:{labels:hrs.map(function(h){return String(h).padStart(2,'0')+':00';}), datasets:[{
+      data:hAvg, backgroundColor:hAvg.map(function(v){return ci(v,.75);}), borderColor:hAvg.map(function(v){return ci(v,1);}), borderWidth:1, borderRadius:2
+    }]},
+    options:{responsive:true, maintainAspectRatio:true,
+      plugins:{legend:{display:false}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return 'avg '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
+      scales:{x:{ticks:{color:'#6b6b6b',font:{size:8},maxRotation:40},grid:{display:false}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'avg gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
+    }
+  });
+  var bestHr=hAvg.indexOf(Math.min.apply(null,hAvg)), worstHr=hAvg.indexOf(Math.max.apply(null,hAvg));
+  document.getElementById('rgn-sched-tip').innerHTML = '<div style="font-size:10px;color:var(--ink3);line-height:1.6">Best hour: <strong style="color:var(--low)">'+String(bestHr).padStart(2,'0')+':00</strong> ('+Math.round(hAvg[bestHr])+' avg). Peak: <strong style="color:var(--high)">'+String(worstHr).padStart(2,'0')+':00</strong> ('+Math.round(hAvg[worstHr])+' avg). Shifting 1 MWh saves ~'+Math.round(hAvg[worstHr]-hAvg[bestHr])+' kg CO₂.</div>';
+
+  // Trend vs GB
+  kc('rgn-trend');
+  var months = Object.keys(MONTHLY).sort();
+  var gbAvgs = months.map(function(m){ var v=RG.map(function(rg){return MONTHLY[m]?.[rg];}).filter(function(v){return v!=null;}); return v.length?Math.round(v.reduce(function(a,b){return a+b;})/v.length):null; });
+  var ctx3 = document.getElementById('rgn-trend-chart').getContext('2d');
+  CH['rgn-trend'] = new Chart(ctx3, {
+    type:'line',
+    data:{labels:months, datasets:[
+      {label:r, data:months.map(function(m){return MONTHLY[m]?.[r]??null;}), borderColor:RCOL[r], backgroundColor:RCOL[r]+'15', borderWidth:2, pointRadius:0, tension:.35, fill:false},
+      {label:'GB average', data:gbAvgs, borderColor:'#94a3b8', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:.35, fill:false}
+    ]},
+    options:{responsive:true, maintainAspectRatio:true, interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:12,padding:10}}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return c.dataset.label+': '+Math.round(c.parsed.y)+' gCO₂/kWh';}}}},
+      scales:{x:{ticks:{color:'#6b6b6b',font:{size:9},maxRotation:40,maxTicksLimit:20},grid:{color:'#f0ede6'}}, y:{ticks:{color:'#6b6b6b',font:{size:9}},grid:{color:'#f0ede6'},title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:9}}}}
+    }
+  });
+
+  // Mix over time
+  kc('rgn-mix');
+  var gbAvgMix = {};
+  FUELS.forEach(function(f,fi){ gbAvgMix[f]=Object.values(MONTHLY_MIX).reduce(function(s,m){return s+(m[fi]||0);},0)/Object.keys(MONTHLY_MIX).length; });
+  var ctx4 = document.getElementById('rgn-mix-chart').getContext('2d');
+  var mixDs2 = FUELS.map(function(f,fi){
+    var regional=mix[f]||0, gbAv=gbAvgMix[f]||1, bias=regional/gbAv;
+    var data=months.map(function(m){return Math.max(0,Math.round((MONTHLY_MIX[m]?.[fi]||0)*bias));});
+    if(data.every(function(v){return v===0;})) return null;
+    return {label:FUEL_LABELS[f], data:data, backgroundColor:FUEL_COLORS[f]+'cc', borderColor:FUEL_COLORS[f], borderWidth:0, fill:true};
+  }).filter(Boolean);
+  CH['rgn-mix'] = new Chart(ctx4, {
+    type:'line', data:{labels:months, datasets:mixDs2},
+    options:{responsive:true, maintainAspectRatio:true, interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10},boxWidth:10,padding:8}}, tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1, callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y+'%';}}}},
+      scales:{x:{stacked:true,ticks:{color:'#6b6b6b',font:{size:9},maxRotation:40,maxTicksLimit:20},grid:{display:false}}, y:{stacked:true,max:100,ticks:{color:'#6b6b6b',font:{size:9},callback:function(v){return v+'%';}},grid:{color:'#f0ede6'}}}
+    }
+  });
+
+  // Hour x month heatmap
+  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var hrsAll=Array.from({length:24},function(_,i){return i;});
+  var grid=hrsAll.map(function(h){return MN.map(function(_,mi){
+    var profMean=hrsAll.reduce(function(s,hh){return s+(HOURLY[hh]?.[r]||0);},0)/24;
+    var ratio=profMean>0?(HOURLY[h]?.[r]||0)/profMean:1;
+    var keys=Object.keys(MONTHLY).filter(function(k){return parseInt(k.split('-')[1])-1===mi;});
+    var vs=keys.map(function(k){return MONTHLY[k]?.[r];}).filter(function(v){return v!=null;});
+    return vs.length?Math.round(vs.reduce(function(a,b){return a+b;})/vs.length*ratio):null;
+  });});
+  var hdr2=MN.map(function(m){return '<th style="width:28px">'+m+'</th>';}).join('');
+  var body2=hrsAll.map(function(h){
+    var cells=MN.map(function(_,mi){var v=grid[h][mi];return '<td class="hm-cell" style="background:'+(v!=null?ci(v,.88):'#f0ede6')+'" title="'+r+' · '+MN[mi]+' · '+String(h).padStart(2,'0')+':00 · '+(v!=null?v:'–')+' gCO₂/kWh"></td>';}).join('');
+    return '<tr><td class="hm-rl" style="min-width:55px">'+String(h).padStart(2,'0')+':00</td>'+cells+'</tr>';
+  }).join('');
+  document.getElementById('rgn-hm').innerHTML = '<table class="hm"><thead><tr><th class="hm-corner" style="min-width:55px"></th>'+hdr2+'</tr></thead><tbody>'+body2+'</tbody></table>';
+
+  // Context
+  var topFuel=FUELS.reduce(function(b,f){return mix[f]>mix[b]?f:b;},'gas');
+  var fossilPct2=(mix.gas||0)+(mix.coal||0);
+  document.getElementById('rgn-context').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">' +
+    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Generation profile</div><div style="font-size:11px;color:var(--ink2);line-height:1.7;font-weight:300">Primary source: <strong style="color:'+FUEL_COLORS[topFuel]+'">'+FUEL_LABELS[topFuel]+' ('+mix[topFuel]+'%)</strong>. Renewables and nuclear supply '+renew2+'%. Fossil fuels: '+fossilPct2+'%.</div></div>' +
+    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Decarbonisation</div><div style="font-size:11px;color:var(--ink2);line-height:1.7;font-weight:300">Average intensity has fallen from <strong>'+Math.round(base)+'</strong> in 2018–19 to <strong>'+Math.round(avg)+'</strong> gCO₂/kWh — a <strong style="color:var(--low)">'+drop+'% reduction</strong>.</div></div>' +
+    '<div><div style="font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Scheduling</div><div style="font-size:11px;color:var(--ink2);line-height:1.7;font-weight:300">Use the heatmap above to find the best hours. Target green cells for deferrable workloads. The 17:00–20:00 band is typically the highest-carbon window.</div></div>' +
+    '</div>';
+
+  // Heatmap tooltips
+  var tip = document.getElementById('tip');
+  document.querySelectorAll('#rgn-hm .hm-cell').forEach(function(cell){
+    cell.addEventListener('mouseenter', function(e){
+      var t = cell.title.split(' · ');
+      document.getElementById('tip-name').textContent = t[0]||'';
+      document.getElementById('tip-l1').textContent = 'Intensity';
+      document.getElementById('tip-v1').textContent = t[3]||'';
+      document.getElementById('tip-l2').textContent = 'Period';
+      document.getElementById('tip-v2').textContent = (t[1]||'')+' '+(t[2]||'');
+      tip.style.display = 'block';
+    });
+    cell.addEventListener('mousemove', function(e){
+      tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+14)+'px';
+      var tr=tip.getBoundingClientRect();
+      if(tr.right>window.innerWidth-8) tip.style.left=(e.clientX-tr.width-10)+'px';
+      if(tr.bottom>window.innerHeight-8) tip.style.top=(e.clientY-tr.height-10)+'px';
+    });
+    cell.addEventListener('mouseleave', function(){ tip.style.display='none'; });
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// FORECAST PANEL
+// ══════════════════════════════════════════════════════════
+function initForecast(){
+  const sel=document.getElementById('fc-region');
+  if(!sel.options.length){RG.forEach(r=>{const o=document.createElement('option');o.value=o.text=r;sel.appendChild(o);});sel.value='Yorkshire';}
+  buildForecast();
+}
+
+function buildForecast(){
+  const r=document.getElementById('fc-region').value;
+  // Use live forecast if available, else fall back to static
+  const livePts = LIVE_FORECAST[r];
+  const now = new Date();
+  const startH = now.getUTCHours();
+  const labels=Array.from({length:48},(_,i)=>{
+    const h=(startH+i)%24;
+    const day=i<(24-startH)?'Today':i<(48-startH)?'Tomorrow':'Day 3';
+    return (i===0||(startH+i)%24===0)?`${day} ${String(h).padStart(2,'0')}:00`
+           :(startH+i)%6===0?`${String(h).padStart(2,'0')}:00`:'';
+  });
+
+  const vals = livePts ? livePts.map(function(p){return p.intensity||0;}) : FORECAST[r];
+  // Fetch live forecast in background if not loaded
+  if(!livePts){ fetchRegionForecast(r, function(pts){ if(pts){ buildForecast(); } }); }
+  const bestIdx=vals.indexOf(Math.min(...vals));
+  const worstIdx=vals.indexOf(Math.max(...vals));
+
+  // Intensity line chart
+  kc('fc');
+  const ctx1=document.getElementById('fc-chart').getContext('2d');
+  CH.fc=new Chart(ctx1,{
+    type:'line',
+    data:{labels,datasets:[{
+      label:`${r} — gCO₂/kWh`,
+      data:vals,
+      borderColor:RCOL[r]||'#3b82f6',
+      backgroundColor:vals.map(v=>ci(v,.08)),
+      borderWidth:2,
+      pointRadius:vals.map((_,i)=>i===bestIdx||i===worstIdx?5:0),
+      pointBackgroundColor:vals.map((_,i)=>i===bestIdx?'#16a34a':i===worstIdx?'#dc2626':'transparent'),
+      tension:.4,fill:false
+    }]},
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,
+          titleColor:'#1a1a1a',bodyColor:'#6b6b6b',
+          callbacks:{label:c=>`${Math.round(c.parsed.y)} gCO₂/kWh`}
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#6b6b6b',font:{size:9,family:'Barlow'},maxRotation:0},grid:{color:'#f0ede6'}},
+        y:{ticks:{color:'#6b6b6b',font:{size:10,family:'Barlow'}},grid:{color:'#f0ede6'},
+           title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:10,family:'Barlow'}}}
+      }
+    }
+  });
+
+  // Estimated mix stacked area chart (use GB March mix pattern)
+  // Use live regional mix for forecast overlay if available
+  var liveMixNow = LIVE.mix[r] || {};
+  var marchBase = MONTHLY_MIX['2026-03']||[22,46,19,5,4,2,0,2,0];
+  const marchMix = [
+    liveMixNow.gas !== undefined ? liveMixNow.gas : marchBase[0],
+    liveMixNow.wind !== undefined ? liveMixNow.wind : marchBase[1],
+    liveMixNow.nuclear !== undefined ? liveMixNow.nuclear : marchBase[2],
+    liveMixNow.solar !== undefined ? liveMixNow.solar : marchBase[3],
+    liveMixNow.biomass !== undefined ? liveMixNow.biomass : marchBase[4],
+    liveMixNow.hydro !== undefined ? liveMixNow.hydro : marchBase[5],
+    0, // coal
+    liveMixNow.imports !== undefined ? liveMixNow.imports : marchBase[7],
+    liveMixNow.other !== undefined ? liveMixNow.other : marchBase[8]
+  ];
+  // Vary mix over 48h — solar peaks midday, gas inversely
+  const solarProfile=[0,0,0,0,0,0,0.1,0.3,0.6,0.85,1.0,1.1,1.15,1.1,1.0,0.85,0.6,0.3,0.1,0,0,0,0,0];
+  const gasProfile=[0.85,0.82,0.80,0.80,0.82,0.90,1.02,1.10,1.12,1.10,1.06,1.02,1.0,0.98,1.0,1.05,1.14,1.18,1.18,1.15,1.10,1.02,0.95,0.88];
+  const mixDs=FUELS.filter(f=>marchMix[FUELS.indexOf(f)]>1).map(f=>{
+    const fi=FUELS.indexOf(f);
+    const base=marchMix[fi];
+    const data=Array.from({length:48},(_,i)=>{
+      const h=(startH+i)%24;
+      let v=base;
+      if(f==='solar') v=base*(solarProfile[h]||0);
+      else if(f==='gas') v=base*(gasProfile[h]||1);
+      return Math.max(0,Math.round(v));
+    });
+    return{label:FUEL_LABELS[f],data,backgroundColor:FUEL_COLORS[f]+'cc',borderColor:FUEL_COLORS[f],borderWidth:0,fill:true};
+  });
+
+  kc('fcm');
+  const ctx2=document.getElementById('fc-mix-chart').getContext('2d');
+  CH.fcm=new Chart(ctx2,{
+    type:'line',
+    data:{labels,datasets:mixDs},
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:9,family:'Barlow'},boxWidth:10,padding:8}},
+        tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b'}
+      },
+      scales:{
+        x:{stacked:true,ticks:{color:'#6b6b6b',font:{size:9,family:'Barlow'},maxRotation:0},grid:{display:false}},
+        y:{stacked:true,ticks:{color:'#6b6b6b',font:{size:10,family:'Barlow'},callback:v=>v+'%'},grid:{color:'#f0ede6'},max:100}
+      }
+    }
+  });
+
+  // Best/worst windows
+  const bestH=(startH+bestIdx)%24;
+  const worstH=(startH+worstIdx)%24;
+  const bestDay=bestIdx<(24-startH)?'today':bestIdx<(48-startH)?'tomorrow':'Wednesday';
+  const worstDay=worstIdx<(24-startH)?'today':worstIdx<(48-startH)?'tomorrow':'Wednesday';
+  const saving=vals[worstIdx]-vals[bestIdx];
+  document.getElementById('fc-windows').innerHTML=`
+    <div class="best-window">
+      <div class="bw-icon">✅</div>
+      <div>
+        <div class="bw-title">Best window — ${String(bestH).padStart(2,'0')}:00 ${bestDay}</div>
+        <div class="bw-body"><strong>${vals[bestIdx]} gCO₂/kWh forecast</strong> — lowest carbon period in the next 48 hours for ${r}. Ideal for scheduling AI training jobs, batch compute, EV charging, or any deferrable load. Shifting a 100kWh workload to this window instead of the peak period saves approximately ${Math.round(saving/10)*10} grams of CO₂.</div>
+      </div>
+    </div>
+    <div class="bw-warning" style="margin-top:8px">
+      <div class="bw-icon">⚠️</div>
+      <div>
+        <div class="bw-title" style="color:var(--mid)">Peak period — ${String(worstH).padStart(2,'0')}:00 ${worstDay}</div>
+        <div class="bw-body"><strong>${vals[worstIdx]} gCO₂/kWh forecast</strong> — highest carbon intensity in the forecast window. Avoid running intensive workloads during this period where possible. The ${saving} gCO₂/kWh difference between best and worst represents a ${Math.round((saving/vals[worstIdx])*100)}% reduction opportunity.</div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--ink3);margin-top:8px;font-style:italic">Forecast uses NESO historical patterns scaled to current conditions. Actual values will vary. Connect to the live Carbon Intensity API for real-time data in production.</div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════
+// HEATMAP PANEL
+// ══════════════════════════════════════════════════════════
+function initHM(){
+  const sel=document.getElementById('hm-r');
+  if(!sel.options.length){
+    const o0=document.createElement('option');o0.value='all';o0.text='All regions';sel.appendChild(o0);
+    RG.forEach(r=>{const o=document.createElement('option');o.value=r;o.text=r;sel.appendChild(o);});
+    sel.value='all';
+  }
+  buildHM();
+}
+
+function buildHM(){
+  const region=document.getElementById('hm-r').value;
+  const period=document.getElementById('hm-p').value;
+  const scale=document.getElementById('hm-s').value;
+  const isAll=region==='all';
+  document.getElementById('hm-scale-grp').style.display=isAll?'':'none';
+  const insEl=document.getElementById('hm-insight');
+  insEl.style.display=(!isAll&&(period==='monthly'||period==='24h'))?'':'none';
+
+  const regions=isAll?[...RG].sort((a,b)=>RAVG[a]-RAVG[b]):[region];
+  let cols=[],colLbls=[],cellFn;
+
+  if(period==='24h'){
+    cols=Array.from({length:48},(_,i)=>i);
+    const tl=i=>`${String(Math.floor(i/2)).padStart(2,'0')}:${i%2?'30':'00'}`;
+    colLbls=cols.map((i,idx)=>idx%8===0?tl(i):'');
+    cellFn=(r,i)=>{const h=Math.floor(i/2);const b=HOURLY[h]?.[r]??150;const n=(Math.sin(i*1.3+r.length)*0.08+Math.cos(i*0.7)*0.05)*b;return Math.max(0,Math.round(b+n));};
+  } else if(period==='weekly'){
+    cols=Array.from({length:52},(_,i)=>i);
+    const mn=['J','F','M','A','M','J','J','A','S','O','N','D'];
+    colLbls=cols.map(i=>i%4===0?mn[Math.floor(i*12/52)%12]:'');
+    cellFn=(r,w)=>{const mi=Math.floor(w*12/52);const keys=Object.keys(MONTHLY).filter(k=>parseInt(k.split('-')[1])-1===mi);const vs=keys.map(k=>MONTHLY[k]?.[r]).filter(v=>v!=null);return vs.length?Math.round(vs.reduce((a,b)=>a+b)/vs.length):null;};
+  } else if(period==='monthly'){
+    const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    cols=Array.from({length:12},(_,i)=>i);colLbls=MN;
+    cellFn=(r,mo)=>{const keys=Object.keys(MONTHLY).filter(k=>parseInt(k.split('-')[1])-1===mo);const vs=keys.map(k=>MONTHLY[k]?.[r]).filter(v=>v!=null);return vs.length?Math.round(vs.reduce((a,b)=>a+b)/vs.length):null;};
+  } else {
+    const yrs=[];for(let y=2018;y<=2026;y++)yrs.push(y);
+    cols=yrs;colLbls=yrs.map(y=>String(y));
+    cellFn=(r,yr)=>{const keys=Object.keys(MONTHLY).filter(k=>k.startsWith(yr+'-'));const vs=keys.map(k=>MONTHLY[k]?.[r]).filter(v=>v!=null);return vs.length?Math.round(vs.reduce((a,b)=>a+b)/vs.length):null;};
+  }
+
+  const allV=[];regions.forEach(r=>cols.forEach(c=>{const v=cellFn(r,c);if(v!=null)allV.push(v);}));
+  const gMin=Math.min(...allV),gMax=Math.max(...allV);
+  const rng={};if(scale==='rel'&&isAll)regions.forEach(r=>{const vs=cols.map(c=>cellFn(r,c)).filter(v=>v!=null);rng[r]={min:Math.min(...vs),max:Math.max(...vs)};});
+
+  const colFn=(r,v)=>{
+    if(v==null)return '#f0ede6';
+    if(scale==='rel'&&isAll&&rng[r]){const{min,max}=rng[r];return ci(((v-min)/(max-min||1))*400,.88);}
+    return ci(v,.88);
+  };
+
+  const hdr=colLbls.map((l,i)=>`<th style="min-width:${cols.length>20?10:23}px;font-size:${cols.length>20?'7':'8.5'}px">${l}</th>`).join('');
+  const body=regions.map(r=>{
+    const cells=cols.map((c,i)=>{
+      const v=cellFn(r,c);const bg=colFn(r,v);
+      const lbl=`${r} · ${colLbls[i]||c} · ${v!=null?v:'–'} gCO₂/kWh`;
+      return `<td class="hm-cell" style="background:${bg}" data-r="${r}" data-v="${v??''}" data-lbl="${lbl.replace(/"/g,'&quot;')}"></td>`;
+    }).join('');
+    return `<tr><td class="hm-rl">${r}</td>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('hm-out').innerHTML=`<table class="hm"><thead><tr><th class="hm-corner" style="min-width:135px"></th>${hdr}</tr></thead><tbody>${body}</tbody></table>`;
+
+  const tip=document.getElementById('tip');
+  document.querySelectorAll('.hm-cell').forEach(cell=>{
+    cell.addEventListener('mouseenter',e=>{
+      const parts=cell.dataset.lbl.split(' · ');
+      document.getElementById('tip-name').textContent=isAll?parts[0]:parts[0];
+      document.getElementById('tip-l1').textContent='Intensity';document.getElementById('tip-v1').textContent=parts[2]??'';
+      document.getElementById('tip-l2').textContent='Period';document.getElementById('tip-v2').textContent=parts[1]??'';
+      tip.style.display='block';
+    });
+    cell.addEventListener('mousemove',e=>{
+      tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px';
+      const tr=tip.getBoundingClientRect();
+      if(tr.right>window.innerWidth-8)tip.style.left=(e.clientX-tr.width-10)+'px';
+      if(tr.bottom>window.innerHeight-8)tip.style.top=(e.clientY-tr.height-10)+'px';
+    });
+    cell.addEventListener('mouseleave',()=>{tip.style.display='none';});
+  });
+
+  // Insight for single region
+  if(!isAll&&insEl.style.display!=='none'){
+    if(period==='monthly'){
+      const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const bMo=cols.reduce((b,c)=>(cellFn(region,c)??999)<(cellFn(region,b)??999)?c:b,0);
+      const wMo=cols.reduce((b,c)=>(cellFn(region,c)??0)>(cellFn(region,b)??0)?c:b,0);
+      insEl.innerHTML=`
+        <div class="ins-cell"><div class="ins-lbl" style="color:var(--low)">Cleanest month (average)</div><div class="ins-val">${MN[bMo]}</div><div class="ins-sub">${cellFn(region,bMo)} gCO₂/kWh — highest solar generation and milder demand</div></div>
+        <div class="ins-cell"><div class="ins-lbl" style="color:var(--high)">Highest carbon month (average)</div><div class="ins-val">${MN[wMo]}</div><div class="ins-sub">${cellFn(region,wMo)} gCO₂/kWh — winter demand peak, low renewables</div></div>`;
+    } else if(period==='24h'){
+      const sv=cols.map(c=>cellFn(region,c));const bS=sv.indexOf(Math.min(...sv)),wS=sv.indexOf(Math.max(...sv));
+      const bt=`${String(Math.floor(bS/2)).padStart(2,'0')}:${bS%2?'30':'00'}`;
+      const wt=`${String(Math.floor(wS/2)).padStart(2,'0')}:${wS%2?'30':'00'}`;
+      insEl.innerHTML=`
+        <div class="ins-cell"><div class="ins-lbl" style="color:var(--low)">Lowest carbon slot</div><div class="ins-val">${bt}</div><div class="ins-sub">${sv[bS]} gCO₂/kWh — best window for deferrable workloads</div></div>
+        <div class="ins-cell"><div class="ins-lbl" style="color:var(--high)">Highest carbon slot</div><div class="ins-val">${wt}</div><div class="ins-sub">${sv[wS]} gCO₂/kWh — shifting load saves ~${sv[wS]-sv[bS]} gCO₂/kWh</div></div>`;
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// TREND PANEL
+// ══════════════════════════════════════════════════════════
+let tSel=new Set(['South Scotland','East Midlands','South Wales','London']), tMode='intensity', tChart=null;
+
+function buildTrend(){
+  document.getElementById('trend-pills').innerHTML=RG.map(r=>
+    `<span class="pill${tSel.has(r)?' on':''}" onclick="togT('${r}',this)">${r}</span>`
+  ).join('');
+  renderTrend();
+}
+function togT(r,el){if(tSel.has(r)){tSel.delete(r);el.classList.remove('on');}else{tSel.add(r);el.classList.add('on');}renderTrend();}
+function setTrendMode(m){
+  tMode=m;
+  document.getElementById('tt-intensity').classList.toggle('active',m==='intensity');
+  document.getElementById('tt-mix').classList.toggle('active',m==='mix');
+  renderTrend();
+}
+
+function renderTrend(){
+  const months=Object.keys(MONTHLY).sort();
+  kc('trend');
+  const ctx=document.getElementById('trend-chart').getContext('2d');
+
+  if(tMode==='intensity'){
+    const datasets=[...tSel].map(r=>({
+      label:r, data:months.map(m=>MONTHLY[m]?.[r]??null),
+      borderColor:RCOL[r], backgroundColor:RCOL[r]+'15',
+      borderWidth:1.8, pointRadius:0, tension:.35, fill:false
+    }));
+    tChart=new Chart(ctx,{
+      type:'line',data:{labels:months,datasets},
+      options:{
+        responsive:true,maintainAspectRatio:true,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10,family:'Barlow'},boxWidth:12,padding:10}},
+          tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b',
+            callbacks:{label:c=>`${c.dataset.label}: ${Math.round(c.parsed.y)} gCO₂/kWh`}}
+        },
+        scales:{
+          x:{ticks:{color:'#6b6b6b',font:{size:9,family:'Barlow'},maxRotation:40,maxTicksLimit:24},grid:{color:'#f0ede6'}},
+          y:{ticks:{color:'#6b6b6b',font:{size:10,family:'Barlow'}},grid:{color:'#f0ede6'},
+             title:{display:true,text:'gCO₂/kWh',color:'#6b6b6b',font:{size:10,family:'Barlow'}}}
+        }
+      }
+    });
+  } else {
+    // Stacked area — GB mix over time
+    const datasets=FUELS.map((f,fi)=>({
+      label:FUEL_LABELS[f],
+      data:months.map(m=>(MONTHLY_MIX[m]?.[fi]??0)),
+      backgroundColor:FUEL_COLORS[f]+'cc',
+      borderColor:FUEL_COLORS[f],
+      borderWidth:0,fill:true
+    })).filter(d=>d.data.some(v=>v>0));
+    tChart=new Chart(ctx,{
+      type:'line',data:{labels:months,datasets},
+      options:{
+        responsive:true,maintainAspectRatio:true,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{position:'bottom',labels:{color:'#6b6b6b',font:{size:10,family:'Barlow'},boxWidth:10,padding:8}},
+          tooltip:{backgroundColor:'#fff',borderColor:'#e0ddd6',borderWidth:1,titleColor:'#1a1a1a',bodyColor:'#6b6b6b',
+            callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y}%`}}
+        },
+        scales:{
+          x:{stacked:true,ticks:{color:'#6b6b6b',font:{size:9,family:'Barlow'},maxRotation:40,maxTicksLimit:24},grid:{color:'#f0ede6'}},
+          y:{stacked:true,ticks:{color:'#6b6b6b',font:{size:10,family:'Barlow'},callback:v=>v+'%'},grid:{color:'#f0ede6'},max:100,title:{display:true,text:'% of generation',color:'#6b6b6b',font:{size:10,family:'Barlow'}}}
+        }
+      }
+    });
+  }
+}
+
+
+// ══════════════════════════════════════════════════════════
+// POWER MIX PANEL
+// ══════════════════════════════════════════════════════════
+function buildMix(){
+  var FUELS   = window.FUELS;
+  var FC      = window.FUEL_COLORS;
+  var FL      = window.FUEL_LABELS;
+  var CM      = window.CUR_MIX;
+  var MM      = window.MONTHLY_MIX;
+  var months  = Object.keys(MM).sort();
+
+  // ── Stat strip ──
+  // Compute GB averages across all regions
+  var gbNow = {};
+  FUELS.forEach(function(f){ gbNow[f] = Math.round(RG.reduce(function(s,r){ return s+(CM[r][f]||0); },0)/RG.length); });
+  var renewNow  = (gbNow.wind||0)+(gbNow.solar||0)+(gbNow.hydro||0)+(gbNow.nuclear||0);
+  var fossilNow = (gbNow.gas||0)+(gbNow.coal||0);
+  var windNow   = gbNow.wind||0;
+  var gasNow    = gbNow.gas||0;
+
+  // Compare to 2018 baseline
+  var base18 = MM['2018-09']||MM[months[0]];
+  var renew18 = (base18[1]||0)+(base18[3]||0)+(base18[5]||0)+(base18[2]||0); // wind+solar+hydro+nuclear
+  var coal18  = base18[6]||0;
+
+  document.getElementById('mix-stats').innerHTML =
+    '<div class="is-cell"><div class="is-lbl">Clean energy now (GB)</div><div class="is-val" style="color:var(--low)">'+renewNow+'%</div><div class="is-sub">wind, solar, nuclear, hydro combined</div></div>' +
+    '<div class="is-cell"><div class="is-lbl">Wind share now</div><div class="is-val" style="color:#0ea5e9">'+windNow+'%</div><div class="is-sub">the biggest single driver of intensity variation</div></div>' +
+    '<div class="is-cell"><div class="is-lbl">Gas dependency now</div><div class="is-val" style="color:var(--mid)">'+gasNow+'%</div><div class="is-sub">the residual floor — fills gaps when wind is low</div></div>' +
+    '<div class="is-cell"><div class="is-lbl">Coal share</div><div class="is-val" style="color:var(--ink3)">0%</div><div class="is-sub">last UK coal station closed Sep 2024 — was '+coal18+'% in 2018</div></div>';
+
+  // ── Regional bars sorted by clean share ──
+  var rgData = RG.map(function(r){
+    var m = CM[r];
+    var clean = (m.wind||0)+(m.solar||0)+(m.hydro||0)+(m.nuclear||0);
+    return { r:r, m:m, clean:clean };
+  }).sort(function(a,b){ return b.clean-a.clean; });
+
+  document.getElementById('mix-region-bars').innerHTML = rgData.map(function(d){
+    var segs = FUELS.map(function(f){
+      var pct = d.m[f]||0;
+      if(pct<1) return '';
+      return '<div class="mrb-seg" style="flex:'+pct+';background:'+FC[f]+'" title="'+FL[f]+': '+pct+'%"></div>';
+    }).join('');
+    var col = d.clean > 60 ? 'var(--low)' : d.clean > 35 ? 'var(--mid)' : 'var(--high)';
+    return '<div class="mrb-row" onclick="openRegion(\''+d.r.replace(/'/g,"\\'")+'\')">' +
+      '<div class="mrb-label">'+d.r+'</div>' +
+      '<div class="mrb-bar-wrap">'+segs+'</div>' +
+      '<div class="mrb-val" style="color:'+col+'">'+d.clean+'%</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('mix-legend').innerHTML = FUELS.filter(function(f){ return gbNow[f]>=1; }).map(function(f){
+    return '<div class="mix-leg-item"><div class="mix-leg-dot" style="background:'+FC[f]+'"></div>'+FL[f]+' ('+gbNow[f]+'%)</div>';
+  }).join('');
+
+  // ── Stacked area history ──
+  kc('mix-history');
+  var ctx1 = document.getElementById('mix-history-chart').getContext('2d');
+  var histDs = FUELS.map(function(f,fi){
+    var data = months.map(function(m){ return MM[m]?.[fi]||0; });
+    if(data.every(function(v){ return v===0; })) return null;
+    return { label:FL[f], data:data, backgroundColor:FC[f]+'cc', borderColor:FC[f], borderWidth:0, fill:true };
+  }).filter(Boolean);
+  CH['mix-history'] = new Chart(ctx1, {
+    type:'line', data:{ labels:months, datasets:histDs },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ position:'bottom', labels:{ color:'#6b6b6b', font:{ size:10, family:'Barlow' }, boxWidth:10, padding:8 }},
+        tooltip:{ backgroundColor:'#fff', borderColor:'#e0ddd6', borderWidth:1, titleColor:'#1a1a1a', bodyColor:'#6b6b6b',
+          callbacks:{ label:function(c){ return c.dataset.label+': '+c.parsed.y+'%'; }}}
+      },
+      scales:{
+        x:{ stacked:true, ticks:{ color:'#6b6b6b', font:{ size:9, family:'Barlow' }, maxRotation:40, maxTicksLimit:24 }, grid:{ color:'#f0ede6' }},
+        y:{ stacked:true, max:100, ticks:{ color:'#6b6b6b', font:{ size:10, family:'Barlow' }, callback:function(v){ return v+'%'; }}, grid:{ color:'#f0ede6' },
+            title:{ display:true, text:'% of generation', color:'#6b6b6b', font:{ size:10 }}}
+      }
+    }
+  });
+
+  // ── What has changed facts ──
+  var latestM = MM[months[months.length-1]];
+  var windNow2 = latestM[1]||0, windThen = base18[1]||0;
+  var solarNow2 = latestM[3]||0, solarThen = base18[3]||0;
+  var gasNow2 = latestM[0]||0, gasThen = base18[0]||0;
+  var coalNow2 = latestM[6]||0;
+  var facts = [
+    { lbl:'Wind share', val: '+'+( windNow2-windThen)+'pp', sub:''+windThen+'% \u2192 '+windNow2+'% of generation', col:'#0ea5e9' },
+    { lbl:'Solar share', val: '+'+(solarNow2-solarThen)+'pp', sub:''+solarThen+'% \u2192 '+solarNow2+'%  (seasonal peak ~20%)', col:'#eab308' },
+    { lbl:'Gas share', val: (gasNow2-gasThen)+'pp', sub:''+gasThen+'% \u2192 '+gasNow2+'% — still the dominant flexible source', col:'#f97316' },
+    { lbl:'Coal share', val: '\u22120%', sub:'Eliminated. Last station closed Sep 2024', col:'#78716c' },
+  ];
+  document.getElementById('mix-change-facts').innerHTML = facts.map(function(f){
+    return '<div style="padding:8px 10px;background:var(--paper);border-radius:var(--r)">' +
+      '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">' +
+        '<div style="font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3)">'+f.lbl+'</div>' +
+        '<div style="font-family:var(--cond);font-size:18px;font-weight:700;color:'+f.col+'">'+f.val+'</div>' +
+      '</div>' +
+      '<div style="font-size:10px;color:var(--ink3);margin-top:1px;font-weight:300">'+f.sub+'</div>' +
+    '</div>';
+  }).join('');
+
+  // ── Wind vs intensity scatter ──
+  kc('mix-scatter');
+  // Need monthly GB intensity — compute from MONTHLY
+  var scatterPts = months.map(function(m){
+    var wind = MM[m]?.[1]||0;
+    var intensVals = RG.map(function(r){ return window.MONTHLY[m]?.[r]; }).filter(function(v){ return v!=null; });
+    var intens = intensVals.length ? Math.round(intensVals.reduce(function(a,b){return a+b;})/intensVals.length) : null;
+    if(intens===null) return null;
+    return { x:wind, y:intens, m:m };
+  }).filter(Boolean);
+
+  // Colour points by year for trend visibility
+  var yearColors = {'2018':'#ef4444','2019':'#f97316','2020':'#eab308','2021':'#84cc16','2022':'#22c55e','2023':'#14b8a6','2024':'#0ea5e9','2025':'#6366f1','2026':'#a855f7'};
+  var ctx2 = document.getElementById('mix-scatter-chart').getContext('2d');
+  CH['mix-scatter'] = new Chart(ctx2, {
+    type:'scatter',
+    data:{ datasets:[{
+      label:'Wind % vs Intensity',
+      data: scatterPts,
+      backgroundColor: scatterPts.map(function(p){ return (yearColors[p.m.slice(0,4)]||'#94a3b8')+'aa'; }),
+      borderColor: scatterPts.map(function(p){ return yearColors[p.m.slice(0,4)]||'#94a3b8'; }),
+      borderWidth:1, pointRadius:5, pointHoverRadius:7
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ backgroundColor:'#fff', borderColor:'#e0ddd6', borderWidth:1, titleColor:'#1a1a1a', bodyColor:'#6b6b6b',
+          callbacks:{
+            title:function(items){ return items[0].raw.m; },
+            label:function(c){ return 'Wind: '+c.raw.x+'% · Intensity: '+c.raw.y+' gCO\u2082/kWh'; }
+          }
+        }
+      },
+      scales:{
+        x:{ ticks:{ color:'#6b6b6b', font:{ size:9, family:'Barlow' }, callback:function(v){ return v+'%'; }}, grid:{ color:'#f0ede6' },
+            title:{ display:true, text:'Wind share (%)', color:'#6b6b6b', font:{ size:10 }}},
+        y:{ ticks:{ color:'#6b6b6b', font:{ size:9, family:'Barlow' }}, grid:{ color:'#f0ede6' },
+            title:{ display:true, text:'Avg intensity (gCO\u2082/kWh)', color:'#6b6b6b', font:{ size:10 }}}
+      }
+    }
+  });
+
+  // ── Gas dependency line ──
+  kc('mix-gas');
+  var ctx3 = document.getElementById('mix-gas-chart').getContext('2d');
+  var gasData = months.map(function(m){ return MM[m]?.[0]||0; });
+  var gasColors = gasData.map(function(v){ return v > 40 ? '#f97316cc' : v > 30 ? '#eab308cc' : '#22c55ecc'; });
+  CH['mix-gas'] = new Chart(ctx3, {
+    type:'bar',
+    data:{ labels:months, datasets:[{
+      label:'Gas share %',
+      data: gasData,
+      backgroundColor: gasColors,
+      borderColor: gasColors.map(function(c){ return c.replace('cc','ff'); }),
+      borderWidth:0, borderRadius:1
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ backgroundColor:'#fff', borderColor:'#e0ddd6', borderWidth:1, titleColor:'#1a1a1a', bodyColor:'#6b6b6b',
+          callbacks:{ label:function(c){ return 'Gas: '+c.parsed.y+'% of generation'; }}}
+      },
+      scales:{
+        x:{ ticks:{ color:'#6b6b6b', font:{ size:9, family:'Barlow' }, maxRotation:40, maxTicksLimit:20 }, grid:{ display:false }},
+        y:{ ticks:{ color:'#6b6b6b', font:{ size:9, family:'Barlow' }, callback:function(v){ return v+'%'; }}, grid:{ color:'#f0ede6' },
+            title:{ display:true, text:'Gas share (%)', color:'#6b6b6b', font:{ size:10 }}}
+      }
+    }
+  });
+
+  // ── Analysis cards ──
+  // Compute wind-intensity correlation
+  var pts = scatterPts.filter(function(p){ return p.x > 0 && p.y > 0; });
+  var n = pts.length;
+  var mx2 = pts.reduce(function(s,p){return s+p.x;},0)/n;
+  var my = pts.reduce(function(s,p){return s+p.y;},0)/n;
+  var num = pts.reduce(function(s,p){return s+(p.x-mx2)*(p.y-my);},0);
+  var den = Math.sqrt(pts.reduce(function(s,p){return s+Math.pow(p.x-mx2,2);},0)*pts.reduce(function(s,p){return s+Math.pow(p.y-my,2);},0));
+  var slope = num / pts.reduce(function(s,p){return s+Math.pow(p.x-mx2,2);},0); // gCO2 per 1pp wind
+
+  // Best and worst months
+  var byIntens = scatterPts.slice().sort(function(a,b){return a.y-b.y;});
+  var bestMonth = byIntens[0], worstMonth = byIntens[byIntens.length-1];
+
+  // Seasonal pattern
+  var winterMonths = scatterPts.filter(function(p){ var mo=parseInt(p.m.split('-')[1]); return mo<=2||mo>=11; });
+  var summerMonths = scatterPts.filter(function(p){ var mo=parseInt(p.m.split('-')[1]); return mo>=5&&mo<=8; });
+  var winterAvg = winterMonths.reduce(function(s,p){return s+p.y;},0)/winterMonths.length;
+  var summerAvg = summerMonths.reduce(function(s,p){return s+p.y;},0)/summerMonths.length;
+
+  document.getElementById('mix-analysis').innerHTML =
+    '<div class="analysis-card">' +
+      '<h3>Why wind is the key variable</h3>' +
+      '<p>The scatter chart above reveals a near-linear relationship between wind share and carbon intensity. Each additional percentage point of wind generation reduces GB average intensity by approximately <strong>'+Math.abs(Math.round(slope))+' gCO\u2082/kWh</strong>. No other fuel type has a comparable effect at scale.</p>' +
+      '<p>Gas fills the gap when wind is unavailable. It is fast to ramp and geographically distributed, which makes it the structural backstop for the GB grid. Until battery storage or interconnection reaches sufficient scale, gas share and wind share are roughly inversely correlated.</p>' +
+      '<p>This means scheduling decisions are essentially bets on wind availability. Low-intensity windows are high-wind windows. The overnight and midday periods tend to be lower-intensity not because demand is different but because those are when wind and solar are more likely to dominate.</p>' +
+    '</div>' +
+    '<div class="analysis-card">' +
+      '<h3>Seasonal and structural patterns</h3>' +
+      '<p>Winter months (Nov–Feb) average <strong>'+Math.round(winterAvg)+' gCO\u2082/kWh</strong> GB intensity. Summer months (May–Aug) average <strong>'+Math.round(summerAvg)+' gCO\u2082/kWh</strong>. The '+Math.round(winterAvg-summerAvg)+' gCO\u2082/kWh gap is driven by solar availability in summer and higher heating demand in winter forcing more gas dispatch.</p>' +
+      '<p>The cleanest month on record in this dataset was <strong>'+bestMonth.m+'</strong> at '+bestMonth.y+' gCO\u2082/kWh GB average — wind supplied '+bestMonth.x+'% of generation. The highest was <strong>'+worstMonth.m+'</strong> at '+worstMonth.y+' gCO\u2082/kWh, when wind was at '+worstMonth.x+'%.</p>' +
+      '<p>The structural improvement since 2018 is visible in the scatter: the newer points (purple, blue) cluster towards the lower-right — same or higher wind share, lower intensity — partly because coal removal has permanently lowered the gas-equivalent intensity floor.</p>' +
+    '</div>' +
+    '<div class="analysis-card">' +
+      '<h3>The gas problem</h3>' +
+      '<p>Gas is now the single largest source of GB electricity, supplying around <strong>'+gasNow2+'%</strong> of generation. It is cleaner than coal — around 350–400 gCO\u2082/kWh vs 800+ for coal — but it is still a high-carbon source by any meaningful standard.</p>' +
+      '<p>The gas bar chart shows the fleet\'s gas dependency has actually increased in some recent periods as coal has exited. The grid has not decarbonised by eliminating fossil fuels; it has decarbonised by growing renewables fast enough that the total carbon per kWh has fallen despite gas remaining dominant in the residual mix.</p>' +
+      '<p>For operators targeting near-zero Scope 2 emissions, the implication is clear: even the cleanest GB grid hours carry a non-trivial carbon load from gas dispatch in southern England. Marginal abatement at the consumption end — demand reduction, efficiency, load shifting — remains meaningful even as the grid improves.</p>' +
+    '</div>' +
+    '<div class="analysis-card">' +
+      '<h3>Regional structure vs national averages</h3>' +
+      '<p>GB national averages mask very large regional variation. Scotland regularly operates below 30 gCO\u2082/kWh — sometimes near zero on windy days — while parts of the English Midlands and Wales can exceed 300 gCO\u2082/kWh simultaneously. These are not temporary fluctuations; they reflect structural differences in generation mix.</p>' +
+      '<p>The reason national averages persist as the reporting standard is administrative convenience, not accuracy. Location-specific intensity data is available via the NESO API and is the correct basis for Scope 2 reporting under GHG Protocol market-based and location-based methods.</p>' +
+      '<p>For a data centre, hyperscale workload, or EV fleet operator, the gap between the cleanest and dirtiest GB region typically exceeds <strong>250–300 gCO\u2082/kWh</strong>. Choosing where and when to run compute is a more powerful lever than most other carbon interventions available to a technology operator.</p>' +
+    '</div>';
+}
+
+var REGION_ID = {
+  1:'North Scotland', 2:'South Scotland', 3:'North West England',
+  4:'North East England', 5:'Yorkshire', 6:'North Wales and Merseyside',
+  7:'South Wales', 8:'West Midlands', 9:'East Midlands', 10:'East England',
+  11:'South West England', 12:'South England', 13:'London', 14:'South East England'
+};
+var REGION_ID_REV = {};
+Object.keys(REGION_ID).forEach(function(id){ REGION_ID_REV[REGION_ID[id]] = parseInt(id); });
+
+// ══════════════════════════════════════════════════════════
+// LIVE DATA — NESO Carbon Intensity API
+// ══════════════════════════════════════════════════════════
+var LIVE = { loaded:false, ts:null, regions:{}, mix:{}, gbMix:{}, gbIntensity:null };
+var CORS_PROXY = 'https://carbon-proxy.mark-3f3.workers.dev/?url=';
+var API_BASE = 'https://api.carbonintensity.org.uk';
+
+function setLiveBadge(state, text){
+  var b = document.getElementById('live-badge');
+  if(!b) return;
+  b.className = 'live-badge' + (state==='ok'?'': state==='stale'?' stale':' error');
+  b.innerHTML = '<span class="pulse"></span>' + text;
+}
+
+function fetchLiveData(){
+  setLiveBadge('loading','Loading...');
+  fetch(CORS_PROXY + encodeURIComponent(API_BASE + '/regional'), {headers:{'Accept':'application/json'}})
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var slot = data.data[0];
+      var ts = slot.from;
+      LIVE.ts = ts;
+      slot.regions.forEach(function(reg){
+        var name = REGION_ID[reg.regionid];
+        if(!name) return;
+        LIVE.regions[name] = reg.intensity.forecast;
+        var m = {};
+        reg.generationmix.forEach(function(g){ m[g.fuel] = g.perc; });
+        LIVE.mix[name] = m;
+      });
+      // GB totals (regionid 18)
+      var gb = slot.regions.find(function(r){ return r.regionid===18; });
+      if(gb){
+        LIVE.gbIntensity = gb.intensity.forecast;
+        var gm = {};
+        gb.generationmix.forEach(function(g){ gm[g.fuel] = g.perc; });
+        LIVE.gbMix = gm;
+      }
+      LIVE.loaded = true;
+
+      // Update static data vars used by panels
+      RG.forEach(function(r){
+        if(LIVE.regions[r] !== undefined) NOW[r] = LIVE.regions[r];
+        if(LIVE.mix[r]) CUR_MIX[r] = { gas:LIVE.mix[r].gas||0, wind:LIVE.mix[r].wind||0, nuclear:LIVE.mix[r].nuclear||0, solar:LIVE.mix[r].solar||0, biomass:LIVE.mix[r].biomass||0, hydro:LIVE.mix[r].hydro||0, coal:LIVE.mix[r].coal||0, imports:LIVE.mix[r].imports||0, other:LIVE.mix[r].other||0 };
+      });
+      window.CUR_MIX = CUR_MIX;
+
+      // Timestamp display
+      var d = new Date(ts);
+      var hh = String(d.getUTCHours()).padStart(2,'0');
+      var mm2 = String(d.getUTCMinutes()).padStart(2,'0');
+      var dd = String(d.getUTCDate()).padStart(2,'0');
+      var mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
+      document.getElementById('data-ts').textContent = dd+' '+mo+' '+hh+':'+mm2+' UTC';
+      setLiveBadge('ok','Live');
+
+      // Rebuild active panel with fresh data
+      var activePanel = document.querySelector('.panel.active');
+      if(activePanel){
+        var panelId = activePanel.id.replace('p-','');
+        if(panelId === 'now'){ buildNow(); }
+        else if(panelId === 'mix'){ buildMix(); }
+        else if(panelId === 'region'){ buildRegion(); }
+      }
+      // Always refresh now table if visible
+      if(document.getElementById('now-tbody')) renderNowTable();
+      updateCalc();
+    })
+    .catch(function(err){
+      console.warn('Live data fetch failed:', err);
+      setLiveBadge('error','Offline — using cached data');
+      document.getElementById('data-ts').textContent = 'API unavailable';
+    });
+}
+
+// Fetch 48h forecast for a specific region
+function fetchRegionForecast(regionName, callback){
+  var id = REGION_ID_REV[regionName];
+  if(!id){ callback(null); return; }
+  var now = new Date();
+  var from = now.toISOString().slice(0,16)+'Z';
+  var url = CORS_PROXY + encodeURIComponent(API_BASE + '/regional/intensity/'+from+'/fw48h/regionid/'+id);
+  fetch(url, {headers:{'Accept':'application/json'}})
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var pts = [];
+      if(data.data && data.data[0] && data.data[0].data){
+        data.data[0].data.forEach(function(slot){
+          var m = {};
+          if(slot.generationmix) slot.generationmix.forEach(function(g){ m[g.fuel]=g.perc; });
+          pts.push({ from:slot.from, intensity:slot.intensity.forecast, mix:m });
+        });
+      }
+      LIVE_FORECAST[regionName] = pts;
+      callback(pts);
+    })
+    .catch(function(){ callback(null); });
+}
+
+// Auto-refresh every 30 minutes
+setInterval(fetchLiveData, 30 * 60 * 1000);
+
+// ══════════════════════════════════════════════════════════
+// WORKLOAD CALCULATOR
+// ══════════════════════════════════════════════════════════
+function initCalc(){
+  var sel = document.getElementById('calc-region');
+  if(!sel || sel.options.length > 0) return;
+  RG.forEach(function(r){ var o=document.createElement('option'); o.value=o.text=r; sel.appendChild(o); });
+  sel.value = 'Yorkshire';
+  updateCalc();
+}
+
+function updateCalc(){
+  var kwh = parseFloat(document.getElementById('calc-kwh')&&document.getElementById('calc-kwh').value) || 100;
+  var region = document.getElementById('calc-region')&&document.getElementById('calc-region').value || RG[0];
+  var when = document.getElementById('calc-when')&&document.getElementById('calc-when').value || 'now';
+
+  var nowIntensity = NOW[region] || 200;
+  var fc = LIVE_FORECAST[region] || FORECAST[region] ? null : null;
+
+  // Get best/worst from forecast
+  var fVals = LIVE_FORECAST[region] ? LIVE_FORECAST[region].map(function(p){ return p.intensity||0; }) : FORECAST[region];
+  var bestI = fVals ? Math.min.apply(null, fVals) : nowIntensity * 0.6;
+  var worstI = fVals ? Math.max.apply(null, fVals) : nowIntensity * 1.3;
+  var bestSlot = fVals ? LIVE_FORECAST[region] ? LIVE_FORECAST[region][fVals.indexOf(bestI)] : null : null;
+  var worstSlot = fVals ? LIVE_FORECAST[region] ? LIVE_FORECAST[region][fVals.indexOf(worstI)] : null : null;
+
+  var useIntensity = when==='now' ? nowIntensity : when==='best' ? bestI : worstI;
+  var kgCO2 = (kwh * useIntensity / 1000);
+  var kgBest = (kwh * bestI / 1000);
+  var saving = kgCO2 - kgBest;
+
+  var fmt = function(v){ return v >= 1 ? v.toFixed(1)+' kg' : (v*1000).toFixed(0)+' g'; };
+  var intensityCol = useIntensity < 100 ? 'var(--low)' : useIntensity < 250 ? 'var(--mid)' : 'var(--high)';
+
+  var bestTimeStr = '';
+  if(bestSlot && bestSlot.from){
+    var bd = new Date(bestSlot.from);
+    bestTimeStr = String(bd.getUTCHours()).padStart(2,'0')+':'+String(bd.getUTCMinutes()).padStart(2,'0');
+  }
+
+  var resultsEl = document.getElementById('calc-results');
+  if(!resultsEl) return;
+  resultsEl.innerHTML =
+    '<div class="calc-result"><div class="calc-result-lbl">CO₂ emitted</div><div class="calc-result-val" style="color:'+intensityCol+'">'+fmt(kgCO2)+'</div><div class="calc-result-sub">'+kwh+' kWh at '+Math.round(useIntensity)+' gCO₂/kWh '+(when==='now'?'now':when==='best'?'at best window':'at peak')+'</div></div>' +
+    '<div class="calc-result"><div class="calc-result-lbl">Best window saving</div><div class="calc-result-val" style="color:var(--low)">'+fmt(Math.max(0,saving))+'</div><div class="calc-result-sub">'+(saving>0?'shifting to '+(bestTimeStr||'best window')+' saves '+fmt(saving):'already at optimal intensity')+'</div></div>' +
+    '<div class="calc-result"><div class="calc-result-lbl">Trees equivalent</div><div class="calc-result-val" style="color:var(--ink2)">'+(kgCO2/21).toFixed(1)+'</div><div class="calc-result-sub">days of CO₂ absorbed by a mature tree (21g/day avg)</div></div>';
+}
+
+// ══════════════════════════════════════════════════════════
+// SCHEDULING SCORE
+// ══════════════════════════════════════════════════════════
+function buildSchedScores(){
+  var el = document.getElementById('sched-scores');
+  if(!el) return;
+  var now = new Date();
+  var h = now.getUTCHours();
+  var mo = now.getUTCMonth(); // 0-indexed
+
+  var scores = RG.map(function(r){
+    var nowVal = NOW[r];
+    // Get all historical values for this hour and nearby month
+    var hist = [];
+    Object.keys(MONTHLY).forEach(function(k){
+      var kmo = parseInt(k.split('-')[1]) - 1;
+      if(Math.abs(kmo - mo) <= 1 || (mo===0 && kmo===11) || (mo===11 && kmo===0)){
+        var monthAvg = MONTHLY[k][r];
+        if(monthAvg != null){
+          // Approximate hourly value using hourly profile ratio
+          var profMean = Object.values(HOURLY).reduce(function(s,hv){ return s+(hv[r]||0); },0)/24;
+          var ratio = profMean > 0 ? ((HOURLY[h]?.[r]||profMean)/profMean) : 1;
+          hist.push(monthAvg * ratio);
+        }
+      }
+    });
+    if(!hist.length) return { r:r, score:50, nowVal:nowVal };
+    hist.sort(function(a,b){ return a-b; });
+    // Percentile: what % of historical values is nowVal GREATER than? (lower = better score)
+    var above = hist.filter(function(v){ return v > nowVal; }).length;
+    var score = Math.round((above / hist.length) * 100);
+    return { r:r, score:score, nowVal:nowVal, hist:hist };
+  }).sort(function(a,b){ return b.score-a.score; });
+
+  el.innerHTML = scores.map(function(s){
+    var col = s.score >= 70 ? 'var(--low)' : s.score >= 40 ? 'var(--mid)' : 'var(--high)';
+    var label = s.score >= 80 ? 'Excellent' : s.score >= 60 ? 'Good' : s.score >= 40 ? 'Average' : s.score >= 20 ? 'High' : 'Very high';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--rule);cursor:pointer" onclick="openRegion(''+s.r.replace(/'/g,"\'")+'')">' +
+      '<div style="width:160px;flex-shrink:0;font-size:11px;color:var(--ink2)">'+s.r+'</div>' +
+      '<div style="flex:1;height:6px;background:var(--paper);border-radius:3px;overflow:hidden">' +
+        '<div style="height:100%;width:'+s.score+'%;background:'+col+';border-radius:3px;transition:width .5s ease"></div>' +
+      '</div>' +
+      '<div style="font-family:var(--cond);font-size:13px;font-weight:700;color:'+col+';width:32px;text-align:right">'+s.score+'</div>' +
+      '<div style="width:62px;font-size:10px;color:var(--ink3)">'+label+'</div>' +
+      '<div style="font-family:var(--cond);font-size:11px;font-weight:600;color:'+ci(s.nowVal)+';width:38px;text-align:right">'+s.nowVal+'</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+// YEAR-ON-YEAR COMPARISON
+// ══════════════════════════════════════════════════════════
+function buildYoY(){
+  var el = document.getElementById('yoy-bars');
+  if(!el) return;
+  var now = new Date();
+  var curMo = String(now.getUTCMonth()+1).padStart(2,'0'); // e.g. "03"
+  var moName = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getUTCMonth()];
+
+  // Collect GB average for this month across all years
+  var yoyData = [];
+  Object.keys(MONTHLY).sort().forEach(function(k){
+    if(k.split('-')[1] !== curMo) return;
+    var yr = k.split('-')[0];
+    var vals = RG.map(function(r){ return MONTHLY[k][r]; }).filter(function(v){ return v!=null; });
+    if(!vals.length) return;
+    var avg = Math.round(vals.reduce(function(a,b){return a+b;})/vals.length);
+    yoyData.push({ yr:yr, avg:avg });
+  });
+
+  if(!yoyData.length){ el.innerHTML='<div style="color:var(--ink3);font-size:11px">No data for current month.</div>'; return; }
+  var maxVal = Math.max.apply(null, yoyData.map(function(d){return d.avg;}));
+  var minVal = Math.min.apply(null, yoyData.map(function(d){return d.avg;}));
+  var latest = yoyData[yoyData.length-1];
+  var prev = yoyData.length > 1 ? yoyData[yoyData.length-2] : null;
+  var delta = prev ? latest.avg - prev.avg : 0;
+
+  el.innerHTML = '<div style="font-size:11px;color:var(--ink3);margin-bottom:10px;font-weight:300">GB average intensity for <strong style="color:var(--ink)">' + moName + '</strong> each year · ' + (delta < 0 ? '<span style="color:var(--low)">↓ '+Math.abs(delta)+' gCO₂/kWh vs last year — improving</span>' : delta > 0 ? '<span style="color:var(--high)">↑ '+delta+' gCO₂/kWh vs last year</span>' : 'unchanged vs last year') + '</div>' +
+    yoyData.map(function(d){
+      var pct = Math.round((d.avg / maxVal) * 100);
+      var col = d.avg <= minVal + (maxVal-minVal)*0.33 ? 'var(--low)' : d.avg <= minVal + (maxVal-minVal)*0.66 ? 'var(--mid)' : 'var(--high)';
+      var isLatest = d.yr === latest.yr;
+      return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">' +
+        '<div style="font-family:var(--cond);font-size:12px;font-weight:'+(isLatest?'700':'400')+';color:'+(isLatest?'var(--ink)':'var(--ink3)')+';width:36px">'+d.yr+'</div>' +
+        '<div style="flex:1;height:14px;background:var(--paper);border-radius:2px;overflow:hidden">' +
+          '<div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:2px;transition:width .6s ease"></div>' +
+        '</div>' +
+        '<div style="font-family:var(--cond);font-size:13px;font-weight:'+(isLatest?'700':'500')+';color:'+col+';width:40px;text-align:right">'+d.avg+'</div>' +
+        '<div style="font-size:9px;color:var(--ink3);width:24px">g/kWh</div>' +
+      '</div>';
+    }).join('');
+}
+// ══════════════════════════════════════════════════════════
+// ROUTING
+// ══════════════════════════════════════════════════════════
+var INIT = {};
+var BUILD = {now:buildNow, forecast:initForecast, mix:buildMix, heatmap:initHM, trend:buildTrend, region:buildRegion, about:function(){}};
+function go(name){
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  var tabEl = document.getElementById('tab-' + name);
+  if(!tabEl){ document.querySelectorAll('.tab').forEach(function(t){ if(t.getAttribute('onclick')==="go('"+name+"')") tabEl=t; }); }
+  if(tabEl) tabEl.classList.add('active');
+  var panel = document.getElementById('p-' + name);
+  if(panel) panel.classList.add('active');
+  if(name==='region'){ buildRegion(); }
+  else if(!INIT[name]){ BUILD[name](); INIT[name]=true; }
+}
+window.FUELS=FUELS; window.FUEL_COLORS=FUEL_COLORS; window.FUEL_LABELS=FUEL_LABELS; window.CUR_MIX=CUR_MIX; window.MONTHLY_MIX=MONTHLY_MIX; window.MONTHLY=MONTHLY;
+go('now');
+</script>
+</body>
+</html>
