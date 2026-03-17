@@ -48,11 +48,11 @@ header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 28p
 .hd-title{font-family:var(--cond);font-size:20px;font-weight:700;letter-spacing:.01em;color:var(--ink);line-height:1.1}
 .hd-sub{font-size:11px;color:var(--ink3);margin-top:2px;letter-spacing:.01em}
 .hd-chips{display:flex;align-items:center;gap:7px;flex:1}
-.chip{font-size:10px;font-weight:500;padding:2px 8px;border-radius:3px;border:1px solid var(--rule2);color:var(--ink3);background:var(--paper);letter-spacing:.02em;white-space:nowrap}
+.chip{font-size:11px;font-weight:500;padding:2px 8px;border-radius:3px;border:1px solid var(--rule2);color:var(--ink3);background:var(--paper);letter-spacing:.02em;white-space:nowrap}
 .chip.live{color:var(--low);border-color:#bbf7d0;background:#f0fdf4;display:flex;align-items:center;gap:5px}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--low);animation:blink 2.2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-.hd-right{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ink3);white-space:nowrap}
+.hd-right{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);white-space:nowrap}
 .grad-bar{width:90px;height:7px;border-radius:2px;background:linear-gradient(90deg,#16a34a,#d97706 45%,#dc2626)}
 
 /* ── NAV ── */
@@ -81,15 +81,15 @@ main{padding:24px 28px;max-width:1800px;display:flex;flex-direction:column;gap:1
 /* ── CARD ── */
 .card{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
 .card-title{font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:.03em;color:var(--ink2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.card-sub{font-size:11px;color:var(--ink3);font-weight:400;letter-spacing:0;text-transform:none}
+.card-sub{font-size:12px;color:var(--ink3);font-weight:400;letter-spacing:0;text-transform:none}
 
 /* ── STAT STRIP ── */
 .stat-cell{background:var(--white);padding:10px 12px;position:relative}
 .stat-cell::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .c-g::after{background:var(--low)}.c-r::after{background:var(--high)}.c-a::after{background:var(--mid)}.c-b::after{background:var(--acc)}
-.stat-lbl{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stat-val{font-family:var(--cond);font-size:22px;font-weight:600;line-height:1;letter-spacing:-.01em}
-.stat-sub{font-size:11px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.35}
+.stat-sub{font-size:12px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.35}
 
 /* ── GAUGE ── */
 .gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0}
@@ -109,7 +109,7 @@ main{padding:24px 28px;max-width:1800px;display:flex;flex-direction:column;gap:1
 .tbl-wrap{overflow-x:auto}
 table.dt{width:100%;border-collapse:collapse;font-size:11.5px}
 table.dt thead{background:var(--paper)}
-table.dt th{padding:7px 11px;text-align:left;font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--rule);white-space:nowrap;cursor:pointer;user-select:none}
+table.dt th{padding:7px 11px;text-align:left;font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--rule);white-space:nowrap;cursor:pointer;user-select:none}
 table.dt th:hover{color:var(--ink)}
 table.dt th.sa::after{content:' ↑';color:var(--acc)}
 table.dt th.sd::after{content:' ↓';color:var(--acc)}
@@ -122,7 +122,7 @@ table.dt tr.hl td{background:#eff6ff}
 .civ{font-weight:600;font-family:var(--cond);font-size:13px}
 .mbar{display:inline-block;height:4px;border-radius:2px;vertical-align:middle;margin-left:4px}
 .dp{color:var(--low)}.dn{color:var(--high)}.dm{color:var(--mid)}
-.bdg{display:inline-block;font-size:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:2px}
+.bdg{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:2px}
 .bdg-g{background:#dcfce7;color:#15803d}.bdg-r{background:#fee2e2;color:#b91c1c}.bdg-a{background:#fef3c7;color:#b45309}
 
 /* ── FUEL MIX IN TABLE ── */
@@ -131,27 +131,27 @@ table.dt tr.hl td{background:#eff6ff}
 /* ── HEATMAP ── */
 .hm-ctrl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .ctrl-grp{display:flex;align-items:center;gap:6px}
-.ctrl-grp label{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.ctrl-grp label{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 select{font-family:var(--sans);font-size:11px;font-weight:400;color:var(--ink);background:var(--white);border:1px solid var(--rule2);border-radius:var(--r);padding:5px 24px 5px 9px;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b6b'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;min-width:130px}
 select:focus{border-color:var(--acc)}
 .hm-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:12px}
 table.hm{border-collapse:separate;border-spacing:2px;min-width:max-content}
 .hm-corner{position:sticky;left:0;background:var(--white);z-index:3}
-table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);text-align:center;padding:2px 2px;white-space:nowrap}
-.hm-rl{font-size:10px;color:var(--ink2);text-align:right;padding-right:10px !important;white-space:nowrap;min-width:135px;position:sticky;left:0;background:var(--white);z-index:2}
+table.hm th{font-family:var(--cond);font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3);text-align:center;padding:2px 2px;white-space:nowrap}
+.hm-rl{font-size:11px;color:var(--ink2);text-align:right;padding-right:10px !important;white-space:nowrap;min-width:135px;position:sticky;left:0;background:var(--white);z-index:2}
 .hm-cell{width:23px;height:19px;border-radius:2px;cursor:default;transition:transform .1s;position:relative}
 .hm-cell:hover{transform:scale(1.9);z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.18)}
-.hm-legend{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:10px;color:var(--ink3)}
+.hm-legend{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--ink3)}
 .hm-grad{width:110px;height:7px;border-radius:2px}
 .insight{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;margin-top:14px}
 .ins-cell{background:var(--white);padding:13px 16px}
-.ins-lbl{font-family:var(--cond);font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
+.ins-lbl{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px}
 .ins-val{font-family:var(--cond);font-size:20px;font-weight:700;letter-spacing:.02em;color:var(--ink)}
 .ins-sub{font-size:12px;color:var(--ink3);margin-top:2px;font-weight:300;line-height:1.5}
 
 /* ── CHARTS ── */
 .pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
-.pill{font-size:10px;padding:2px 9px;border:1px solid var(--rule2);border-radius:20px;cursor:pointer;color:var(--ink3);background:var(--white);transition:all .12s}
+.pill{font-size:11px;padding:2px 9px;border:1px solid var(--rule2);border-radius:20px;cursor:pointer;color:var(--ink3);background:var(--white);transition:all .12s}
 .pill:hover{color:var(--ink);border-color:var(--rule2)}
 .pill.on{color:var(--acc);border-color:var(--acc);background:#eef2ff}
 .chart-wrap{position:relative;background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
@@ -160,12 +160,12 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 #fc-chart,#fc-mix-chart{max-height:220px!important}
 #rgn-fc-chart,#rgn-sched-chart,#rgn-trend-chart,#rgn-mix-chart{max-height:200px!important}
 .chart-toggle{display:flex;gap:0;border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;margin-bottom:12px;width:fit-content}
-.ct-btn{padding:5px 14px;font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--white);border:none;cursor:pointer;color:var(--ink3);transition:all .12s}
+.ct-btn{padding:5px 14px;font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--white);border:none;cursor:pointer;color:var(--ink3);transition:all .12s}
 .ct-btn.active{background:var(--acc);color:#fff}
 
 /* ── FORECAST ── */
 .fcast-region-sel{display:flex;align-items:center;gap:8px;margin-bottom:14px}
-.fcast-region-sel label{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.fcast-region-sel label{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .best-window{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--r);padding:12px 16px;margin-top:12px;display:flex;align-items:flex-start;gap:12px}
 .bw-icon{font-size:22px;flex-shrink:0}
 .bw-title{font-family:var(--cond);font-size:14px;font-weight:700;color:var(--low);margin-bottom:2px}
@@ -193,28 +193,28 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 
 
 /* ── LIVE DATA ── */
-.live-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid #bbf7d0;background:#f0fdf4;color:var(--low)}
+.live-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid #bbf7d0;background:#f0fdf4;color:var(--low)}
 .live-badge.stale{border-color:#fde68a;background:#fef9ee;color:var(--mid)}
 .live-badge.error{border-color:#fecaca;background:#fff5f5;color:var(--high)}
 .pulse{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 2.2s ease-in-out infinite}
-.data-ts{font-size:9px;color:var(--ink3);margin-left:6px;font-weight:300}
+.data-ts{font-size:11px;color:var(--ink3);margin-left:6px;font-weight:300}
 .skeleton{background:linear-gradient(90deg,var(--rule) 25%,var(--paper) 50%,var(--rule) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:3px;color:transparent!important}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .loading-overlay{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--ink3);font-size:12px;font-weight:300;gap:10px}
 .spin{width:16px;height:16px;border:2px solid var(--rule2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.api-note{font-size:11px;color:var(--ink3);font-weight:300;font-style:italic;margin-top:6px}
+.api-note{font-size:12px;color:var(--ink3);font-weight:300;font-style:italic;margin-top:6px}
 
 /* ── WORKLOAD CALCULATOR ── */
 .calc-wrap{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
 .calc-inputs{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .calc-field{display:flex;flex-direction:column;gap:4px}
-.calc-field label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.calc-field label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .calc-field input,.calc-field select{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink);background:var(--paper);border:1px solid var(--rule2);border-radius:var(--r);padding:6px 10px;width:120px;outline:none}
 .calc-field input:focus,.calc-field select:focus{border-color:var(--acc)}
 .calc-results{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
 .calc-result{background:var(--white);padding:10px 12px}
-.calc-result-lbl{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px}
+.calc-result-lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:3px}
 .calc-result-val{font-family:var(--cond);font-size:22px;font-weight:700;line-height:1}
 .calc-result-sub{font-size:11px;color:var(--ink3);margin-top:2px;font-weight:300}
 @media(max-width:600px){.calc-results{grid-template-columns:1fr 1fr}.calc-inputs{flex-direction:column;align-items:flex-start}}
@@ -238,7 +238,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .mix-leg-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
 .insight-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:var(--r); overflow:hidden; }
 .is-cell { background:var(--white); padding:10px 12px; }
-.is-lbl { font-size:9px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.is-lbl { font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .is-val { font-family:var(--cond); font-size:20px; font-weight:700; line-height:1; }
 .is-sub { font-size:11px; color:var(--ink3); margin-top:2px; font-weight:300; line-height:1.35; }
 .analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
@@ -255,7 +255,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .bw-chart-wrap{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
 .bw-chart-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
 .bw-chart-region{display:flex;align-items:center;gap:8px}
-.bw-chart-region label{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.bw-chart-region label{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 .bw-reco{background:var(--paper);border-radius:var(--r);padding:10px 14px;margin-top:10px;font-size:13px;color:var(--ink2);line-height:1.6}
 .bw-reco strong{color:var(--ink);font-weight:600}
 .bw-reco .bw-go{color:var(--low);font-weight:600}
@@ -265,7 +265,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .bw-bar-col:hover .bw-bar-tip{display:block}
 .bw-bar{border-radius:2px 2px 0 0;width:100%;transition:opacity .2s}
 .bw-bar.best{box-shadow:0 0 0 2px var(--low)}
-.bw-bar-lbl{font-size:8px;color:var(--ink3);margin-top:3px;white-space:nowrap;overflow:hidden;font-family:var(--cond)}
+.bw-bar-lbl{font-size:9px;color:var(--ink3);margin-top:3px;white-space:nowrap;overflow:hidden;font-family:var(--cond)}
 .bw-bar-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:10px;padding:4px 8px;border-radius:3px;white-space:nowrap;z-index:30;pointer-events:none}
 .bw-bar-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:var(--ink)}
 
@@ -273,7 +273,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .comp-calc{background:var(--white);border:1px solid var(--rule);border-radius:var(--r);padding:16px}
 .comp-inputs{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .comp-table{width:100%;border-collapse:collapse;font-size:12px}
-.comp-table th{font-family:var(--cond);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);background:var(--paper)}
+.comp-table th{font-family:var(--cond);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:6px 10px;border-bottom:1px solid var(--rule);background:var(--paper)}
 .comp-table th:not(:first-child){text-align:right}
 .comp-table td{padding:8px 10px;border-bottom:1px solid var(--rule);color:var(--ink2)}
 .comp-table td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
@@ -288,7 +288,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
 .rgn-hd-val{font-family:var(--cond);font-size:22px;font-weight:600}
 .rgn-hd-meta{font-size:12px;color:var(--ink3);font-weight:300;margin-top:2px}
 .rgn-hd-fbar{flex:1;min-width:180px}
-.rgn-hd-fbar-label{font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.rgn-hd-fbar-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
 .back-btn{font-family:var(--cond);font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);background:var(--paper);border:1px solid var(--rule2);border-radius:var(--r);padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap;margin-left:auto}
 .back-btn:hover{color:var(--ink);border-color:var(--rule)}
 .rgn-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
@@ -307,7 +307,7 @@ table.hm th{font-family:var(--cond);font-size:8px;font-weight:600;letter-spacing
   .about-grid{grid-template-columns:1fr}
   .insight{grid-template-columns:1fr}
   .hm-cell{width:17px;height:14px}
-  .hm-rl{min-width:85px;font-size:9px}
+  .hm-rl{min-width:85px;font-size:10px}
 }
 @media(max-width:600px){.g4{grid-template-columns:1fr 1fr}}
 @media(max-width:440px){.hm-ctrl{flex-direction:column;align-items:flex-start}}
@@ -1044,7 +1044,7 @@ function buildForecast(){
       var worstDay=wIdx<(24-startH)?'today':'tomorrow';
       var saving=liveFcVals[wIdx]-liveFcVals[bIdx];
       var fcWin=document.getElementById('fc-windows');
-      if(fcWin) fcWin.innerHTML='<div class="best-window"><div class="bw-icon">✅</div><div><div class="bw-title">Best window — '+String(bestH2).padStart(2,'0')+':00 '+bestDay+'</div><div class="bw-body"><strong>'+liveFcVals[bIdx]+' gCO₂/kWh forecast</strong> — lowest carbon period for '+selR+'. Shifting a 100kWh workload here instead of the peak saves approximately '+Math.round(saving/10)*10+' grams of CO₂.</div></div></div><div class="bw-warning" style="margin-top:8px"><div class="bw-icon">⚠️</div><div><div class="bw-title" style="color:var(--mid)">Peak period — '+String(worstH2).padStart(2,'0')+':00 '+worstDay+'</div><div class="bw-body"><strong>'+liveFcVals[wIdx]+' gCO₂/kWh forecast</strong> — avoid intensive workloads during this period. The '+saving+' gCO₂/kWh difference is a '+Math.round((saving/liveFcVals[wIdx])*100)+'% reduction opportunity.</div></div></div><div style="font-size:10px;color:var(--ink3);margin-top:8px;font-style:italic">Live 48h forecast from NESO Carbon Intensity API.</div>';
+      if(fcWin) fcWin.innerHTML='<div class="best-window"><div class="bw-icon">✅</div><div><div class="bw-title">Best window — '+String(bestH2).padStart(2,'0')+':00 '+bestDay+'</div><div class="bw-body"><strong>'+liveFcVals[bIdx]+' gCO₂/kWh forecast</strong> — lowest carbon period for '+selR+'. Shifting a 100kWh workload here instead of the peak saves approximately '+Math.round(saving/10)*10+' grams of CO₂.</div></div></div><div class="bw-warning" style="margin-top:8px"><div class="bw-icon">⚠️</div><div><div class="bw-title" style="color:var(--mid)">Peak period — '+String(worstH2).padStart(2,'0')+':00 '+worstDay+'</div><div class="bw-body"><strong>'+liveFcVals[wIdx]+' gCO₂/kWh forecast</strong> — avoid intensive workloads during this period. The '+saving+' gCO₂/kWh difference is a '+Math.round((saving/liveFcVals[wIdx])*100)+'% reduction opportunity.</div></div></div><div style="font-size:12px;color:var(--ink3);margin-top:8px;font-style:italic">Live 48h forecast from NESO Carbon Intensity API.</div>';
     } else {
       buildForecast(); // chart not yet created, do full build
     }
@@ -1156,7 +1156,7 @@ function buildForecast(){
         <div class="bw-body"><strong>${vals[worstIdx]} gCO₂/kWh forecast</strong> — highest carbon intensity in the forecast window. Avoid running intensive workloads during this period where possible. The ${saving} gCO₂/kWh difference between best and worst represents a ${Math.round((saving/vals[worstIdx])*100)}% reduction opportunity.</div>
       </div>
     </div>
-    <div style="font-size:10px;color:var(--ink3);margin-top:8px;font-style:italic">Forecast uses NESO historical patterns scaled to current conditions. Actual values will vary. Connect to the live Carbon Intensity API for real-time data in production.</div>
+    <div style="font-size:12px;color:var(--ink3);margin-top:8px;font-style:italic">Forecast uses NESO historical patterns scaled to current conditions. Actual values will vary. Connect to the live Carbon Intensity API for real-time data in production.</div>
   `;
 }
 
@@ -1442,7 +1442,7 @@ function buildMix(){
         '<div style="font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--ink3)">'+f.lbl+'</div>' +
         '<div style="font-family:var(--cond);font-size:18px;font-weight:700;color:'+f.col+'">'+f.val+'</div>' +
       '</div>' +
-      '<div style="font-size:10px;color:var(--ink3);margin-top:1px;font-weight:300">'+f.sub+'</div>' +
+      '<div style="font-size:12px;color:var(--ink3);margin-top:1px;font-weight:300">'+f.sub+'</div>' +
     '</div>';
   }).join('');
 
@@ -1858,9 +1858,9 @@ function updateCalc(){
     var bestCol = row.bestI < 100 ? 'var(--low)' : row.bestI < 200 ? '#65a30d' : row.bestI < 300 ? 'var(--mid)' : 'var(--high)';
     var saving = Math.max(0, row.kgNow - row.kgBest);
     return '<tr'+(isBest?' class="best-row"':'')+'>'+
-      '<td><strong>'+row.region+'</strong>'+(isBest?' <span style="font-size:10px;color:var(--low);font-weight:600">★ cleanest</span>':'')+'</td>'+
+      '<td><strong>'+row.region+'</strong>'+(isBest?' <span style="font-size:11px;color:var(--low);font-weight:600">★ cleanest</span>':'')+'</td>'+
       '<td class="cv" style="color:'+nowCol+'">'+row.nowI+'</td>'+
-      '<td class="cv" style="color:'+bestCol+'">'+row.bestI+(row.bestTime?' <span style="font-size:10px;font-weight:400;color:var(--ink3)">'+row.bestTime+'</span>':'')+'</td>'+
+      '<td class="cv" style="color:'+bestCol+'">'+row.bestI+(row.bestTime?' <span style="font-size:11px;font-weight:400;color:var(--ink3)">'+row.bestTime+'</span>':'')+'</td>'+
       '<td class="cv" style="color:'+nowCol+'">'+fmt(row.kgNow)+'</td>'+
       '<td class="cv" style="color:'+bestCol+'">'+fmt(row.kgBest)+'</td>'+
       '<td class="cv '+(saving>0.1?'comp-saving':'')+'">'+fmt(saving)+'</td>'+
@@ -1925,7 +1925,7 @@ function buildSchedScores(){
         '<div style="height:100%;width:'+s.score+'%;background:'+col+';border-radius:3px;transition:width .5s ease"></div>' +
       '</div>' +
       '<div style="font-family:var(--cond);font-size:13px;font-weight:700;color:'+col+';width:32px;text-align:right">'+s.score+'</div>' +
-      '<div style="width:62px;font-size:10px;color:var(--ink3)">'+label+'</div>' +
+      '<div style="width:72px;font-size:12px;color:var(--ink3)">'+label+'</div>' +
       '<div style="font-family:var(--cond);font-size:11px;font-weight:600;color:'+ci(s.nowVal)+';width:38px;text-align:right">'+s.nowVal+'</div>' +
     '</div>';
   }).join('');
@@ -1970,7 +1970,7 @@ function buildYoY(){
           '<div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:2px;transition:width .6s ease"></div>' +
         '</div>' +
         '<div style="font-family:var(--cond);font-size:13px;font-weight:'+(isLatest?'700':'500')+';color:'+col+';width:40px;text-align:right">'+d.avg+'</div>' +
-        '<div style="font-size:9px;color:var(--ink3);width:24px">g/kWh</div>' +
+        '<div style="font-size:11px;color:var(--ink3);width:28px">g/kWh</div>' +
       '</div>';
     }).join('');
 }
