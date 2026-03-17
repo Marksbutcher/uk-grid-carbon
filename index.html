@@ -1595,9 +1595,6 @@ function fetchRegionForecast(regionName, callback){
     .catch(function(){ callback(null); });
 }
 
-// Auto-refresh every 30 minutes
-setInterval(fetchLiveData, 30 * 60 * 1000);
-
 // ══════════════════════════════════════════════════════════
 // WORKLOAD CALCULATOR
 // ══════════════════════════════════════════════════════════
@@ -1757,6 +1754,11 @@ function go(name){
 }
 window.FUELS=FUELS; window.FUEL_COLORS=FUEL_COLORS; window.FUEL_LABELS=FUEL_LABELS; window.CUR_MIX=CUR_MIX; window.MONTHLY_MIX=MONTHLY_MIX; window.MONTHLY=MONTHLY;
 go('now');
+// Wait for DOM to be ready, then fetch live data and set up auto-refresh
+setTimeout(function(){
+  fetchLiveData();
+  setInterval(fetchLiveData, 30 * 60 * 1000);
+}, 500);
 </script>
 </body>
 </html>
