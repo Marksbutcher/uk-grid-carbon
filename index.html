@@ -969,8 +969,32 @@ function buildForecast(){
   });
 
   const vals = livePts ? livePts.map(function(p){return p.intensity||0;}) : FORECAST[r];
-  // Fetch live forecast in background if not loaded — only rebuild if panel still active
-  if(!livePts){ fetchRegionForecast(r, function(pts){ if(pts && document.getElementById('p-forecast').classList.contains('active')){ buildForecast(); } }); }
+  // Fetch live forecast in background if not loaded
+  // When it arrives, update charts in place rather than destroy+recreate
+  if(!livePts){ fetchRegionForecast(r, function(pts){
+    if(!pts) return;
+    if(!document.getElementById('p-forecast').classList.contains('active')) return;
+    // Update existing chart data in place — no flash
+    if(CH.fc){
+      var liveFcVals = pts.map(function(p){return p.intensity||0;});
+      var bIdx = liveFcVals.indexOf(Math.min.apply(null,liveFcVals));
+      var wIdx = liveFcVals.indexOf(Math.max.apply(null,liveFcVals));
+      CH.fc.data.datasets[0].data = liveFcVals;
+      CH.fc.data.datasets[0].pointRadius = liveFcVals.map(function(_,i){return i===bIdx||i===wIdx?5:0;});
+      CH.fc.data.datasets[0].pointBackgroundColor = liveFcVals.map(function(_,i){return i===bIdx?'#16a34a':i===wIdx?'#dc2626':'transparent';});
+      CH.fc.update('none');
+      // Also rebuild the recommendation boxes with live data
+      var selR = document.getElementById('fc-region').value;
+      var bestH2=(startH+bIdx)%24, worstH2=(startH+wIdx)%24;
+      var bestDay=bIdx<(24-startH)?'today':'tomorrow';
+      var worstDay=wIdx<(24-startH)?'today':'tomorrow';
+      var saving=liveFcVals[wIdx]-liveFcVals[bIdx];
+      var fcWin=document.getElementById('fc-windows');
+      if(fcWin) fcWin.innerHTML='<div class="best-window"><div class="bw-icon">✅</div><div><div class="bw-title">Best window — '+String(bestH2).padStart(2,'0')+':00 '+bestDay+'</div><div class="bw-body"><strong>'+liveFcVals[bIdx]+' gCO₂/kWh forecast</strong> — lowest carbon period for '+selR+'. Shifting a 100kWh workload here instead of the peak saves approximately '+Math.round(saving/10)*10+' grams of CO₂.</div></div></div><div class="bw-warning" style="margin-top:8px"><div class="bw-icon">⚠️</div><div><div class="bw-title" style="color:var(--mid)">Peak period — '+String(worstH2).padStart(2,'0')+':00 '+worstDay+'</div><div class="bw-body"><strong>'+liveFcVals[wIdx]+' gCO₂/kWh forecast</strong> — avoid intensive workloads during this period. The '+saving+' gCO₂/kWh difference is a '+Math.round((saving/liveFcVals[wIdx])*100)+'% reduction opportunity.</div></div></div><div style="font-size:10px;color:var(--ink3);margin-top:8px;font-style:italic">Live 48h forecast from NESO Carbon Intensity API.</div>';
+    } else {
+      buildForecast(); // chart not yet created, do full build
+    }
+  }); }
   const bestIdx=vals.indexOf(Math.min(...vals));
   const worstIdx=vals.indexOf(Math.max(...vals));
 
